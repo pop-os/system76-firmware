@@ -1,0 +1,13 @@
+[package]
+name = "system76-firmware-daemon"
+version = "0.1.0"
+authors = ["Jeremy Soller <jeremy@system76.com>"]
+
+[dependencies]
+buildchain = { git = "https://github.com/pop-os/buildchain.git" }
+ecflash = { git = "https://github.com/system76/ecflash.git" }
+serde_json = "1.0"
+sha2 = "0.7.0"
+tar = "0.4"
+tempdir = "0.3"
+xz2 = "0.1"
