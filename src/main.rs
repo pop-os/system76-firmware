@@ -6,48 +6,17 @@ extern crate tar;
 extern crate tempdir;
 extern crate xz2;
 
-use std::{fs, io, path, process};
+use std::{fs, io, process};
+use std::path::Path;
 
+mod boot;
 mod config;
 mod ec;
 mod download;
+mod mount;
 mod util;
 
-fn remove_dir<P: AsRef<path::Path>>(path: P) -> Result<(), String> {
-    if path.as_ref().exists() {
-        eprintln!("removing {}", path.as_ref().display());
-        match fs::remove_dir_all(&path) {
-            Ok(()) => (),
-            Err(err) => {
-                return Err(format!("failed to remove {}: {}", path.as_ref().display(), err));
-            }
-        }
-    }
-
-    Ok(())
-}
-
-fn download_and_extract<P: AsRef<path::Path>>(file: &str, path: P) -> Result<(), String> {
-    eprintln!("downloading {}", file);
-    let data = match download::download(file) {
-        Ok(ok) => ok,
-        Err(err) => {
-            return Err(format!("failed to download {}: {}", file, err));
-        }
-    };
-
-    eprintln!("extracting {} to {}", file, path.as_ref().display());
-    match util::extract(&data, &path) {
-        Ok(()) => (),
-        Err(err) => {
-            return Err(format!("failed to extract {} to {}: {}", file, path.as_ref().display(), err));
-        }
-    }
-
-    Ok(())
-}
-
-fn update() -> Result<(), String> {
+fn firmware_id() -> Result<String, String> {
     extern {
         fn geteuid() -> isize;
         fn iopl(level: isize) -> isize;
@@ -95,10 +64,55 @@ fn update() -> Result<(), String> {
     let ec_hash = util::sha256(ec_project.as_bytes());
     let firmware_id = format!("{}_{}", bios_model, ec_hash);
     eprintln!("Firmware ID: {}", firmware_id);
+    Ok(firmware_id)
+}
+
+fn remove_dir<P: AsRef<Path>>(path: P) -> Result<(), String> {
+    if path.as_ref().exists() {
+        eprintln!("removing {}", path.as_ref().display());
+        match fs::remove_dir_all(&path) {
+            Ok(()) => (),
+            Err(err) => {
+                return Err(format!("failed to remove {}: {}", path.as_ref().display(), err));
+            }
+        }
+    }
+
+    Ok(())
+}
+
+fn download_and_extract<P: AsRef<Path>>(file: &str, path: P) -> Result<(), String> {
+    eprintln!("downloading {}", file);
+    let data = match download::download(file) {
+        Ok(ok) => ok,
+        Err(err) => {
+            return Err(format!("failed to download {}: {}", file, err));
+        }
+    };
+
+    eprintln!("extracting {} to {}", file, path.as_ref().display());
+    match util::extract(&data, &path) {
+        Ok(()) => (),
+        Err(err) => {
+            return Err(format!("failed to extract {} to {}: {}", file, path.as_ref().display(), err));
+        }
+    }
+
+    Ok(())
+}
+
+fn update() -> Result<(), String> {
+    let firmware_id = firmware_id()?;
+
+    if ! Path::new("/sys/firmware/efi").exists() {
+        return Err(format!("must be run using UEFI boot"));
+    }
 
     let updater_file = "system76-firmware-update.tar.xz";
     let firmware_file = format!("{}.tar.xz", firmware_id);
-    let updater_dir = path::Path::new("/boot/efi/system76-firmware-update");
+    let updater_dir = Path::new("/boot/efi/system76-firmware-update");
+
+    boot::unset_next_boot()?;
 
     remove_dir(&updater_dir)?;
 
@@ -122,6 +136,8 @@ fn update() -> Result<(), String> {
             return Err(format!("failed to move {} to {}: {}", updater_tmp_dir.display(), updater_dir.display(), err));
         }
     }
+
+    boot::set_next_boot()?;
 
     Ok(())
 }
