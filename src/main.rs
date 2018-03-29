@@ -1,70 +1,39 @@
 extern crate buildchain;
+extern crate dbus;
 extern crate ecflash;
+extern crate libc;
+extern crate plain;
 extern crate serde_json;
 extern crate sha2;
 extern crate tar;
 extern crate tempdir;
+extern crate uuid;
 extern crate xz2;
 
+use dbus::{Connection, BusType, NameFlag};
+use dbus::tree::{Factory, MethodErr};
 use std::{fs, io, process};
 use std::path::Path;
 
+mod bios;
 mod boot;
 mod config;
-mod ec;
 mod download;
+mod ec;
+mod me;
 mod mount;
 mod util;
 
+// Helper function for errors
+pub (crate) fn err_str<E: ::std::fmt::Display>(err: E) -> String {
+    format!("{}", err)
+}
+
 fn firmware_id() -> Result<String, String> {
-    extern {
-        fn geteuid() -> isize;
-        fn iopl(level: isize) -> isize;
-    }
-
-    if unsafe { geteuid() } != 0 {
-        return Err(format!("must be run as root"));
-    }
-
-    // Get I/O Permission
-    if unsafe { iopl(3) } < 0 {
-        return Err(format!(
-            "failed to get I/O permission: {}",
-            io::Error::last_os_error()
-        ));
-    }
-
-    let bios_model = match util::read_string("/sys/class/dmi/id/product_version") {
-        Ok(ok) => ok.trim().to_string(),
-        Err(err) => {
-            return Err(format!("failed to read BIOS model: {}", err));
-        }
-    };
-
-    let bios_version = match util::read_string("/sys/class/dmi/id/bios_version") {
-        Ok(ok) => ok.trim().to_string(),
-        Err(err) => {
-            return Err(format!("failed to read BIOS version: {}", err));
-        }
-    };
-
-    let (ec_project, ec_version) = match ec::ec(true) {
-        Ok(ok) => ok,
-        Err(err) => {
-            eprintln!("system76-firmware-daemon: failed to read EC: {}", err);
-            ("none".to_string(), "none".to_string())
-        }
-    };
-
-    eprintln!("BIOS Model: {}", bios_model);
-    eprintln!("BIOS Version: {}", bios_version);
-    eprintln!("EC Project: {}", ec_project);
-    eprintln!("EC Version: {}", ec_version);
-
+    let (bios_model, _bios_version) = bios::bios()?;
+    let (ec_project, _ec_version) = ec::ec_or_none(true);
     let ec_hash = util::sha256(ec_project.as_bytes());
-    let firmware_id = format!("{}_{}", bios_model, ec_hash);
-    eprintln!("Firmware ID: {}", firmware_id);
-    Ok(firmware_id)
+    Ok(format!("{}_{}", bios_model, ec_hash))
 }
 
 fn remove_dir<P: AsRef<Path>>(path: P) -> Result<(), String> {
@@ -101,7 +70,7 @@ fn download_and_extract<P: AsRef<Path>>(file: &str, path: P) -> Result<(), Strin
     Ok(())
 }
 
-fn update() -> Result<(), String> {
+fn install() -> Result<(), String> {
     let firmware_id = firmware_id()?;
 
     if ! Path::new("/sys/firmware/efi").exists() {
@@ -139,18 +108,131 @@ fn update() -> Result<(), String> {
 
     boot::set_next_boot()?;
 
+    eprintln!("Firmware update prepared. Reboot your machine to install.");
+
     Ok(())
 }
 
+pub fn bus() -> Result<(), String> {
+    if unsafe { libc::geteuid() } != 0 {
+        return Err(format!("must be run as root"));
+    }
+
+    // Get I/O Permission
+    if unsafe { libc::iopl(3) } < 0 {
+        return Err(format!(
+            "failed to get I/O permission: {}",
+            io::Error::last_os_error()
+        ));
+    }
+
+    let c = Connection::get_private(BusType::System).map_err(err_str)?;
+    c.register_name("com.system76.firmwaredaemon", NameFlag::ReplaceExisting as u32).map_err(err_str)?;
+
+    let f = Factory::new_fn::<()>();
+
+    let tree = f.tree(()).add(f.object_path("/com/system76/firmwaredaemon", ()).introspectable().add(
+        f.interface("com.system76.firmwaredaemon", ())
+        .add_m(
+            f.method("Bios", (), move |m| {
+                println!("Bios");
+                match bios::bios() {
+                    Ok((bios_model, bios_version)) => {
+                        let mret = m.msg.method_return().append2(bios_model, bios_version);
+                        Ok(vec![mret])
+                    },
+                    Err(err) => {
+                        Err(MethodErr::failed(&err))
+                    }
+                }
+            })
+            .outarg::<&str,_>("model")
+            .outarg::<&str,_>("version")
+        )
+        .add_m(
+            f.method("EmbeddedController", (), move |m| {
+                let primary = m.msg.read1()?;
+                println!("EmbeddedController({})", primary);
+                match ec::ec(primary) {
+                    Ok((ec_project, ec_version)) => {
+                        let mret = m.msg.method_return().append2(ec_project, ec_version);
+                        Ok(vec![mret])
+                    },
+                    Err(err) => {
+                        Err(MethodErr::failed(&err))
+                    }
+                }
+            })
+            .inarg::<bool,_>("primary")
+            .outarg::<&str,_>("project")
+            .outarg::<&str,_>("version")
+        )
+        .add_m(
+            f.method("ManagementEngine", (), move |m| {
+                println!("ManagementEngine");
+                match me::me() {
+                    Ok(Some(me_version)) => {
+                        let mret = m.msg.method_return().append2(true, me_version);
+                        Ok(vec![mret])
+                    },
+                    Ok(None) => {
+                        let mret = m.msg.method_return().append2(false, "");
+                        Ok(vec![mret])
+                    },
+                    Err(err) => {
+                        Err(MethodErr::failed(&err))
+                    }
+                }
+            })
+            .outarg::<bool,_>("enabled")
+            .outarg::<&str,_>("version")
+        )
+        .add_m(
+            f.method("FirmwareId", (), move |m| {
+                println!("FirmwareId");
+                match firmware_id() {
+                    Ok(id) => {
+                        let mret = m.msg.method_return().append1(id);
+                        Ok(vec![mret])
+                    },
+                    Err(err) => {
+                        Err(MethodErr::failed(&err))
+                    }
+                }
+            })
+            .outarg::<&str,_>("id")
+        )
+        .add_m(
+            f.method("Install", (), move |m| {
+                println!("Install");
+                match install() {
+                    Ok(()) => {
+                        let mret = m.msg.method_return();
+                        Ok(vec![mret])
+                    },
+                    Err(err) => {
+                        Err(MethodErr::failed(&err))
+                    }
+                }
+            })
+        )
+    ));
+
+    tree.set_registered(&c, true).map_err(err_str)?;
+
+    c.add_handler(tree);
+
+    loop {
+        c.incoming(1000).next();
+    }
+}
+
 fn main() {
-    match update() {
-        Ok(()) => {
-            eprintln!("Firmware update prepared. Reboot your machine to install.");
-            process::exit(0)
-        },
+    match bus() {
+        Ok(()) => (),
         Err(err) => {
             eprintln!("system76-firmware-daemon: {}", err);
-            process::exit(1)
+            process::exit(1);
         }
     }
 }

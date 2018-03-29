@@ -5,9 +5,13 @@ authors = ["Jeremy Soller <jeremy@system76.com>"]
 
 [dependencies]
 buildchain = { git = "https://github.com/pop-os/buildchain.git" }
+dbus = "0.6"
 ecflash = { git = "https://github.com/system76/ecflash.git" }
+libc = "0.2"
+plain = "0.2"
 serde_json = "1.0"
 sha2 = "0.7.0"
 tar = "0.4"
 tempdir = "0.3"
+uuid = "0.6"
 xz2 = "0.1"
