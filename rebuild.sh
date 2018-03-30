@@ -2,7 +2,10 @@
 
 set -ex
 
-cargo build
-sudo cp data/com.system76.firmwaredaemon.conf /etc/dbus-1/system.d/com.system76.firmwaredaemon.conf
+sudo systemctl stop system76-firmware-daemon || true
+sudo make uninstall
+make
+sudo make install
+sudo systemctl daemon-reload
 sudo systemctl reload dbus
-sudo target/debug/system76-firmware-daemon
+sudo systemctl start system76-firmware-daemon
