@@ -2,13 +2,13 @@ extern crate buildchain;
 extern crate dbus;
 extern crate ecflash;
 extern crate libc;
+extern crate lzma;
 extern crate plain;
 extern crate serde_json;
 extern crate sha2;
 extern crate tar;
 extern crate tempdir;
 extern crate uuid;
-extern crate xz2;
 
 use dbus::{Connection, BusType, NameFlag};
 use dbus::tree::{Factory, MethodErr};

@@ -1,11 +1,15 @@
+use lzma::reader::LzmaReader;
 use std::{fs, io, path};
 use std::io::Read;
 use sha2::{Sha256, Digest};
 use tar::Archive;
-use xz2::read::XzDecoder;
 
 pub fn extract<P: AsRef<path::Path>>(data: &[u8], p: P) -> io::Result<()> {
-    let mut tar = Archive::new(XzDecoder::new(data));
+    let decompressor = LzmaReader::new_decompressor(data).map_err(|err| io::Error::new(
+        io::ErrorKind::Other,
+        err
+    ))?;
+    let mut tar = Archive::new(decompressor);
 
     for file_res in tar.entries()?{
         let mut file = file_res?;
