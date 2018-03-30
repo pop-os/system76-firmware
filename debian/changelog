@@ -1,0 +1,5 @@
+system76-firmware-daemon (0.0.1) bionic; urgency=medium
+
+  * Initial release.
+
+ -- Jeremy Soller <jeremy@system76.com>  Fri, 30 Mar 2018 08:38:01 -0600
