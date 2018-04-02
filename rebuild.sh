@@ -10,4 +10,4 @@ sudo make install
 sudo systemctl daemon-reload
 sudo systemctl reload dbus
 sudo systemctl start system76-firmware-daemon
-journalctl -f -t system76-firmware-daemon
+journalctl -f -n 0 -t system76-firmware-daemon

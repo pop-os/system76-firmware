@@ -195,6 +195,7 @@ pub fn bus() -> Result<(), String> {
                         Ok(vec![mret])
                     },
                     Err(err) => {
+                        eprintln!("{}", err);
                         Err(MethodErr::failed(&err))
                     }
                 }
@@ -212,6 +213,7 @@ pub fn bus() -> Result<(), String> {
                         Ok(vec![mret])
                     },
                     Err(err) => {
+                        eprintln!("{}", err);
                         Err(MethodErr::failed(&err))
                     }
                 }
@@ -233,6 +235,7 @@ pub fn bus() -> Result<(), String> {
                         Ok(vec![mret])
                     },
                     Err(err) => {
+                        eprintln!("{}", err);
                         Err(MethodErr::failed(&err))
                     }
                 }
@@ -249,6 +252,7 @@ pub fn bus() -> Result<(), String> {
                         Ok(vec![mret])
                     },
                     Err(err) => {
+                        eprintln!("{}", err);
                         Err(MethodErr::failed(&err))
                     }
                 }
@@ -264,6 +268,7 @@ pub fn bus() -> Result<(), String> {
                         Ok(vec![mret])
                     },
                     Err(err) => {
+                        eprintln!("{}", err);
                         Err(MethodErr::failed(&err))
                     }
                 }
@@ -281,6 +286,7 @@ pub fn bus() -> Result<(), String> {
                         Ok(vec![mret])
                     },
                     Err(err) => {
+                        eprintln!("{}", err);
                         Err(MethodErr::failed(&err))
                     }
                 }
@@ -296,6 +302,7 @@ pub fn bus() -> Result<(), String> {
                         Ok(vec![mret])
                     },
                     Err(err) => {
+                        eprintln!("{}", err);
                         Err(MethodErr::failed(&err))
                     }
                 }
