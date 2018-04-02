@@ -6,7 +6,7 @@ authors = ["Jeremy Soller <jeremy@system76.com>"]
 [dependencies]
 buildchain = { git = "https://github.com/pop-os/buildchain.git" }
 dbus = "0.6"
-ecflash = { git = "https://github.com/system76/ecflash.git" }
+ecflash = { git = "https://github.com/system76/ecflash.git", branch = "stable" }
 libc = "0.2"
 plain = "0.2"
 rust-lzma = "0.2"
