@@ -113,6 +113,18 @@ fn install() -> Result<(), String> {
     Ok(())
 }
 
+fn uninstall() -> Result<(), String> {
+    let updater_dir = Path::new("/boot/efi/system76-firmware-update");
+
+    boot::unset_next_boot()?;
+
+    remove_dir(&updater_dir)?;
+
+    eprintln!("Firmware update cancelled.");
+
+    Ok(())
+}
+
 pub fn bus() -> Result<(), String> {
     if unsafe { libc::geteuid() } != 0 {
         return Err(format!("must be run as root"));
@@ -206,6 +218,20 @@ pub fn bus() -> Result<(), String> {
             f.method("Install", (), move |m| {
                 println!("Install");
                 match install() {
+                    Ok(()) => {
+                        let mret = m.msg.method_return();
+                        Ok(vec![mret])
+                    },
+                    Err(err) => {
+                        Err(MethodErr::failed(&err))
+                    }
+                }
+            })
+        )
+        .add_m(
+            f.method("Uninstall", (), move |m| {
+                println!("Uninstall");
+                match uninstall() {
                     Ok(()) => {
                         let mret = m.msg.method_return();
                         Ok(vec![mret])

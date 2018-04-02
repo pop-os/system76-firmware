@@ -124,7 +124,7 @@ pub fn unset_next_boot() -> Result<(), String> {
         eprintln!("{:?}", command);
 
         match command.status() {
-            Ok(status) => (),
+            Ok(_status) => (),
             Err(err) => {
                 return Err(format!("failed to unset next boot: {}", err));
             }
@@ -141,7 +141,7 @@ pub fn unset_next_boot() -> Result<(), String> {
         eprintln!("{:?}", command);
 
         match command.status() {
-            Ok(status) => (),
+            Ok(_status) => (),
             Err(err) => {
                 return Err(format!("failed to remove boot entry: {}", err));
             }
