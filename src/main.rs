@@ -180,12 +180,12 @@ pub fn bus() -> Result<(), String> {
     }
 
     let c = Connection::get_private(BusType::System).map_err(err_str)?;
-    c.register_name("com.system76.firmwaredaemon", NameFlag::ReplaceExisting as u32).map_err(err_str)?;
+    c.register_name("com.system76.FirmwareDaemon", NameFlag::ReplaceExisting as u32).map_err(err_str)?;
 
     let f = Factory::new_fn::<()>();
 
-    let tree = f.tree(()).add(f.object_path("/com/system76/firmwaredaemon", ()).introspectable().add(
-        f.interface("com.system76.firmwaredaemon", ())
+    let tree = f.tree(()).add(f.object_path("/com/system76/FirmwareDaemon", ()).introspectable().add(
+        f.interface("com.system76.FirmwareDaemon", ())
         .add_m(
             f.method("Bios", (), move |m| {
                 eprintln!("Bios");
