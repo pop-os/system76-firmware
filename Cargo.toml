@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["Jeremy Soller <jeremy@system76.com>"]
 
 [dependencies]
-buildchain = { git = "https://github.com/pop-os/buildchain.git" }
+buildchain = "0.4.5"
 dbus = "0.6"
 ecflash = { git = "https://github.com/system76/ecflash.git", branch = "stable" }
 libc = "0.2"
