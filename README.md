@@ -48,3 +48,25 @@ To clean out the vendor source, you can run this command:
 ```
 make distclean
 ```
+
+## API
+
+The system76-firmware-daemon will download the latest firmware package, if it has
+changed, and will provide a DBUS interface for a user to query the current firmware
+status, query the update information, and schedule an update.
+
+The DBUS API is as follows:
+
+- `Bios() -> (String model, String version)`
+  Query the BIOS model and version.
+- `EmbeddedController(Boolean primary) -> (String project, String version)`
+  Query the embedded controller for project and version. Optionally, a second
+  embedded controller can be queried.
+- `ManagementEngine() -> (Boolean enabled, String version)`
+  Query the ME status and version.
+- `Changelog() -> (String json)`
+  Download the latest changelog information
+- `Schedule() -> ()`
+  Prepare the latest firmware update for installation
+- `Unschedule() -> ()`
+  Cancel installation of the latest firmware update

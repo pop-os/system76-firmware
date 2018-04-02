@@ -70,7 +70,7 @@ fn download_and_extract<P: AsRef<Path>>(file: &str, path: P) -> Result<(), Strin
     Ok(())
 }
 
-fn install() -> Result<(), String> {
+fn schedule() -> Result<(), String> {
     let firmware_id = firmware_id()?;
 
     if ! Path::new("/sys/firmware/efi").exists() {
@@ -108,12 +108,12 @@ fn install() -> Result<(), String> {
 
     boot::set_next_boot()?;
 
-    eprintln!("Firmware update prepared. Reboot your machine to install.");
+    eprintln!("Firmware update scheduled. Reboot your machine to install.");
 
     Ok(())
 }
 
-fn uninstall() -> Result<(), String> {
+fn unschedule() -> Result<(), String> {
     let updater_dir = Path::new("/boot/efi/system76-firmware-update");
 
     boot::unset_next_boot()?;
@@ -215,9 +215,9 @@ pub fn bus() -> Result<(), String> {
             .outarg::<&str,_>("id")
         )
         .add_m(
-            f.method("Install", (), move |m| {
-                println!("Install");
-                match install() {
+            f.method("Schedule", (), move |m| {
+                println!("Schedule");
+                match schedule() {
                     Ok(()) => {
                         let mret = m.msg.method_return();
                         Ok(vec![mret])
@@ -229,9 +229,9 @@ pub fn bus() -> Result<(), String> {
             })
         )
         .add_m(
-            f.method("Uninstall", (), move |m| {
-                println!("Uninstall");
-                match uninstall() {
+            f.method("Unschedule", (), move |m| {
+                println!("Unschedule");
+                match unschedule() {
                     Ok(()) => {
                         let mret = m.msg.method_return();
                         Ok(vec![mret])
