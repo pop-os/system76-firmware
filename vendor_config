@@ -1,5 +1,10 @@
 [source.crates-io]
 replace-with = "vendor"
 
+[source."https://github.com/system76/ecflash.git"]
+git = "https://github.com/system76/ecflash.git"
+branch = "stable"
+replace-with = "vendor"
+
 [source.vendor]
 directory = "vendor"
