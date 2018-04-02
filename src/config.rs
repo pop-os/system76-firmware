@@ -1,3 +1,5 @@
+pub static CACHE: &'static str = "/var/cache/system76-firmware-daemon";
+
 pub static KEY: &'static str = "2KVG7PDILDAMIX3RE5GWNYKLS6LWCDDPZCIAMYCB6LSTETE6FQGQ";
 
 pub static URL: &'static str = "https://firmware.system76.com/buildchain/";

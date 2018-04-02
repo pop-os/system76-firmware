@@ -1,19 +1,17 @@
-use buildchain::{Block, Downloader, Manifest, Sha384};
-use serde_json;
+use buildchain::{Downloader, Sha384};
 use std::fs::{self, File};
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 
-use config;
 use err_str;
 
 pub struct Cache {
     path: PathBuf,
-    downloader: Downloader,
+    downloader: Option<Downloader>,
 }
 
 impl Cache {
-    pub fn new<P: AsRef<Path>>(path: P, downloader: Downloader) -> Result<Cache, String> {
+    pub fn new<P: AsRef<Path>>(path: P, downloader: Option<Downloader>) -> Result<Cache, String> {
         if ! path.as_ref().is_dir() {
             fs::create_dir(path.as_ref()).map_err(err_str)?;
         }
@@ -43,36 +41,15 @@ impl Cache {
             }
         }
 
-        let data = self.downloader.object(digest)?;
-        {
-            let mut file = File::create(&path).map_err(err_str)?;
-            file.write_all(&data).map_err(err_str)?;
+        if let Some(ref downloader) = self.downloader {
+            let data = downloader.object(digest)?;
+            {
+                let mut file = File::create(&path).map_err(err_str)?;
+                file.write_all(&data).map_err(err_str)?;
+            }
+            Ok(data)
+        } else {
+            Err(format!("could not find digest in cache: {}", digest))
         }
-        Ok(data)
-    }
-
-    pub fn tail(&self) -> Result<Block, String> {
-        self.downloader.tail()
-    }
-}
-
-pub fn download(file: &str) -> Result<Vec<u8>, String> {
-    let cache = Cache::new("/var/cache/system76-firmware-daemon", Downloader::new(
-        config::KEY,
-        config::URL,
-        config::PROJECT,
-        config::BRANCH,
-        Some(config::CERT)
-    )?)?;
-
-    let tail = cache.tail()?;
-
-    let manifest_json = cache.object(&tail.digest)?;
-    let manifest = serde_json::from_slice::<Manifest>(&manifest_json).map_err(|e| e.to_string())?;
-
-    if let Some(digest) = manifest.files.get(file) {
-        cache.object(digest)
-    } else {
-        Err(format!("{} not found", file))
     }
 }

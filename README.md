@@ -64,9 +64,9 @@ The DBUS API is as follows:
   embedded controller can be queried.
 - `ManagementEngine() -> (Boolean enabled, String version)`
   Query the ME status and version.
-- `Changelog() -> (String json)`
+- `Download() -> (String digest, String changelog)`
   Download the latest changelog information
-- `Schedule() -> ()`
+- `Schedule(String digest) -> ()`
   Prepare the latest firmware update for installation
 - `Unschedule() -> ()`
   Cancel installation of the latest firmware update

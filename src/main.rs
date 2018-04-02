@@ -10,6 +10,7 @@ extern crate tar;
 extern crate tempdir;
 extern crate uuid;
 
+use buildchain::{Downloader, Manifest};
 use dbus::{Connection, BusType, NameFlag};
 use dbus::tree::{Factory, MethodErr};
 use std::{fs, io, process};
@@ -50,13 +51,53 @@ fn remove_dir<P: AsRef<Path>>(path: P) -> Result<(), String> {
     Ok(())
 }
 
-fn download_and_extract<P: AsRef<Path>>(file: &str, path: P) -> Result<(), String> {
-    eprintln!("downloading {}", file);
-    let data = match download::download(file) {
-        Ok(ok) => ok,
-        Err(err) => {
-            return Err(format!("failed to download {}: {}", file, err));
-        }
+fn download() -> Result<(String, String), String> {
+    let firmware_id = firmware_id()?;
+
+    let dl = Downloader::new(
+        config::KEY,
+        config::URL,
+        config::PROJECT,
+        config::BRANCH,
+        Some(config::CERT)
+    )?;
+
+    let tail = dl.tail()?;
+
+    let cache = download::Cache::new(config::CACHE, Some(dl))?;
+
+    eprintln!("downloading manifest.json");
+    let manifest_json = cache.object(&tail.digest)?;
+    let manifest = serde_json::from_slice::<Manifest>(&manifest_json).map_err(|e| e.to_string())?;
+
+    let _updater_data = {
+        let file = "system76-firmware-update.tar.xz";
+        eprintln!("downloading {}", file);
+        let digest = manifest.files.get(file).ok_or(format!("{} not found", file))?;
+        cache.object(&digest)?
+    };
+
+    let firmware_data = {
+        let file = format!("{}.tar.xz", firmware_id);
+        eprintln!("downloading {}", file);
+        let digest = manifest.files.get(&file).ok_or(format!("{} not found", file))?;
+        cache.object(&digest)?
+    };
+
+    let changelog = util::extract_file(&firmware_data, "./changelog.json").map_err(err_str)?;
+
+    Ok((tail.digest.to_string(), changelog))
+}
+
+fn extract<P: AsRef<Path>>(digest: &str, file: &str, path: P) -> Result<(), String> {
+    let cache = download::Cache::new(config::CACHE, None)?;
+
+    let manifest_json = cache.object(&digest)?;
+    let manifest = serde_json::from_slice::<Manifest>(&manifest_json).map_err(|e| e.to_string())?;
+
+    let data = {
+        let digest = manifest.files.get(file).ok_or(format!("{} not found", file))?;
+        cache.object(&digest)?
     };
 
     eprintln!("extracting {} to {}", file, path.as_ref().display());
@@ -70,7 +111,7 @@ fn download_and_extract<P: AsRef<Path>>(file: &str, path: P) -> Result<(), Strin
     Ok(())
 }
 
-fn schedule() -> Result<(), String> {
+fn schedule(digest: &str) -> Result<(), String> {
     let firmware_id = firmware_id()?;
 
     if ! Path::new("/sys/firmware/efi").exists() {
@@ -92,9 +133,9 @@ fn schedule() -> Result<(), String> {
         }
     };
 
-    download_and_extract(updater_file, updater_tmp.path())?;
+    extract(digest, updater_file, updater_tmp.path())?;
 
-    download_and_extract(&firmware_file, &updater_tmp.path().join("firmware"))?;
+    extract(digest, &firmware_file, &updater_tmp.path().join("firmware"))?;
 
     let updater_tmp_dir = updater_tmp.into_path();
     eprintln!("moving {} to {}", updater_tmp_dir.display(), updater_dir.display());
@@ -147,7 +188,7 @@ pub fn bus() -> Result<(), String> {
         f.interface("com.system76.firmwaredaemon", ())
         .add_m(
             f.method("Bios", (), move |m| {
-                println!("Bios");
+                eprintln!("Bios");
                 match bios::bios() {
                     Ok((bios_model, bios_version)) => {
                         let mret = m.msg.method_return().append2(bios_model, bios_version);
@@ -164,7 +205,7 @@ pub fn bus() -> Result<(), String> {
         .add_m(
             f.method("EmbeddedController", (), move |m| {
                 let primary = m.msg.read1()?;
-                println!("EmbeddedController({})", primary);
+                eprintln!("EmbeddedController({})", primary);
                 match ec::ec(primary) {
                     Ok((ec_project, ec_version)) => {
                         let mret = m.msg.method_return().append2(ec_project, ec_version);
@@ -181,7 +222,7 @@ pub fn bus() -> Result<(), String> {
         )
         .add_m(
             f.method("ManagementEngine", (), move |m| {
-                println!("ManagementEngine");
+                eprintln!("ManagementEngine");
                 match me::me() {
                     Ok(Some(me_version)) => {
                         let mret = m.msg.method_return().append2(true, me_version);
@@ -201,7 +242,7 @@ pub fn bus() -> Result<(), String> {
         )
         .add_m(
             f.method("FirmwareId", (), move |m| {
-                println!("FirmwareId");
+                eprintln!("FirmwareId");
                 match firmware_id() {
                     Ok(id) => {
                         let mret = m.msg.method_return().append1(id);
@@ -215,9 +256,26 @@ pub fn bus() -> Result<(), String> {
             .outarg::<&str,_>("id")
         )
         .add_m(
+            f.method("Download", (), move |m| {
+                eprintln!("Download");
+                match download() {
+                    Ok((digest, changelog)) => {
+                        let mret = m.msg.method_return().append2(digest, changelog);
+                        Ok(vec![mret])
+                    },
+                    Err(err) => {
+                        Err(MethodErr::failed(&err))
+                    }
+                }
+            })
+            .outarg::<&str,_>("digest")
+            .outarg::<&str,_>("changelog")
+        )
+        .add_m(
             f.method("Schedule", (), move |m| {
-                println!("Schedule");
-                match schedule() {
+                let digest = m.msg.read1()?;
+                eprintln!("Schedule({})", digest);
+                match schedule(digest) {
                     Ok(()) => {
                         let mret = m.msg.method_return();
                         Ok(vec![mret])
@@ -227,10 +285,11 @@ pub fn bus() -> Result<(), String> {
                     }
                 }
             })
+            .inarg::<&str,_>("digest")
         )
         .add_m(
             f.method("Unschedule", (), move |m| {
-                println!("Unschedule");
+                eprintln!("Unschedule");
                 match unschedule() {
                     Ok(()) => {
                         let mret = m.msg.method_return();
