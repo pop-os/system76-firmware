@@ -22,12 +22,10 @@ distclean: clean
 install: all
 	install -D -m 0755 "target/release/$(BIN)" "$(DESTDIR)$(bindir)/$(BIN)"
 	install -D -m 0644 "data/$(BIN).conf" "$(DESTDIR)$(sysconfdir)/dbus-1/system.d/$(BIN).conf"
-	install -D -m 0644 "data/$(BIN).service" "$(DESTDIR)$(sysconfdir)/systemd/system/$(BIN).service"
 
 uninstall:
 	rm -f "$(DESTDIR)$(bindir)/$(BIN)"
 	rm -f "$(DESTDIR)$(sysconfdir)/dbus-1/system.d/$(BIN).conf"
-	rm -f "$(DESTDIR)$(sysconfdir)/systemd/system/$(BIN).service"
 
 update:
 	cargo update

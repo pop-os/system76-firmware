@@ -5,6 +5,7 @@ Maintainer: Jeremy Soller <jeremy@system76.com>
 Build-Depends:
   debhelper (>=9),
   cargo,
+  dh-systemd,
   libdbus-1-dev,
   liblzma-dev,
   libsodium-dev,

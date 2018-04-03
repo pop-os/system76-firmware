@@ -3,7 +3,7 @@ Description=System76 Firmware Daemon
 
 [Service]
 ExecStart=/usr/bin/system76-firmware-daemon
-Restart=no
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
