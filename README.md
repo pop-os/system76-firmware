@@ -1,8 +1,6 @@
 # system76-firmware
 
-The system76-firmware package has a CLI tool for installing firmware updates.
-
-The system76-firmware-daemon package has a systemd service which exposes a DBUS API for handling firmware updates.
+The system76-firmware package has a CLI tool for installing firmware updates. Also included is the system76-firmware-daemon package, which has a systemd service that exposes a DBUS API for handling firmware updates.
 
 ## Dependencies
 
