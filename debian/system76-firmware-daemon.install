@@ -1,0 +1,2 @@
+/etc/dbus-1/system.d/system76-firmware-daemon.conf
+/usr/lib/system76-firmware/system76-firmware-daemon
