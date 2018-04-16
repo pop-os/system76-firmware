@@ -1,4 +1,4 @@
-Source: system76-firmware-daemon
+Source: system76-firmware
 Section: admin
 Priority: optional
 Maintainer: Jeremy Soller <jeremy@system76.com>
@@ -12,7 +12,14 @@ Build-Depends:
   libssl-dev,
   pkg-config
 Standards-Version: 4.1.1
-Homepage: https://github.com/pop-os/system76-firmware-daemon
+Homepage: https://github.com/pop-os/system76-firmware
+
+Package: system76-firmware
+Architecture: amd64
+Depends:
+  ${misc:Depends},
+  ${shlib:Depends}
+Description: System76 Firmware CLI
 
 Package: system76-firmware-daemon
 Architecture: amd64

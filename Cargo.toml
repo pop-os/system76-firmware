@@ -1,7 +1,15 @@
 [package]
-name = "system76-firmware-daemon"
+name = "system76-firmware"
 version = "0.1.0"
 authors = ["Jeremy Soller <jeremy@system76.com>"]
+
+[[bin]]
+name = "system76-firmware"
+path = "src/bin/cli.rs"
+
+[[bin]]
+name = "system76-firmware-daemon"
+path = "src/bin/daemon.rs"
 
 [dependencies]
 buildchain = "0.4.5"
@@ -15,3 +23,6 @@ sha2 = "0.7.0"
 tar = "0.4"
 tempdir = "0.3"
 uuid = "0.6"
+
+[profile.release]
+lto = true

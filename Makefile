@@ -9,9 +9,11 @@ datadir = $(datarootdir)
 
 .PHONY: all clean distclean install uninstall update
 
-BIN=system76-firmware-daemon
+PKG=system76-firmware
+CLI=$(PKG)
+DAEMON=$(PKG)-daemon
 
-all: target/release/$(BIN)
+all: target/release/$(CLI) target/release/$(DAEMON)
 
 clean:
 	cargo clean
@@ -19,13 +21,23 @@ clean:
 distclean: clean
 	rm -rf .cargo vendor
 
-install: all
-	install -D -m 0755 "target/release/$(BIN)" "$(DESTDIR)$(bindir)/$(BIN)"
-	install -D -m 0644 "data/$(BIN).conf" "$(DESTDIR)$(sysconfdir)/dbus-1/system.d/$(BIN).conf"
+install: install-cli install-daemon
 
-uninstall:
-	rm -f "$(DESTDIR)$(bindir)/$(BIN)"
-	rm -f "$(DESTDIR)$(sysconfdir)/dbus-1/system.d/$(BIN).conf"
+install-cli: target/release/$(CLI)
+	install -D -m 0755 "target/release/$(CLI)" "$(DESTDIR)$(bindir)/$(CLI)"
+
+install-daemon: target/release/$(DAEMON)
+	install -D -m 0755 "target/release/$(DAEMON)" "$(DESTDIR)$(libdir)/$(PKG)/$(DAEMON)"
+	install -D -m 0644 "data/$(DAEMON).conf" "$(DESTDIR)$(sysconfdir)/dbus-1/system.d/$(DAEMON).conf"
+
+uninstall: uninstall-cli uninstall-daemon
+
+uninstall-cli:
+	rm -f "$(DESTDIR)$(bindir)/$(CLI)"
+
+uninstall-daemon:
+	rm -f "$(DESTDIR)$(libdir)/$(PKG)/$(DAEMON)"
+	rm -f "$(DESTDIR)$(sysconfdir)/dbus-1/system.d/$(DAEMON).conf"
 
 update:
 	cargo update
@@ -38,7 +50,7 @@ vendor: .cargo/config
 	cargo vendor
 	touch vendor
 
-target/release/$(BIN):
+target/release/$(CLI) target/release/$(DAEMON): Cargo.lock Cargo.toml src/* src/*/*
 	if [ -d vendor ]; \
 	then \
 		cargo build --release --frozen; \

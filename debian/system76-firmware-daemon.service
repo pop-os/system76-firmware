@@ -2,7 +2,7 @@
 Description=System76 Firmware Daemon
 
 [Service]
-ExecStart=/usr/bin/system76-firmware-daemon
+ExecStart=/usr/lib/system76-firmware/system76-firmware-daemon
 Restart=on-failure
 
 [Install]
