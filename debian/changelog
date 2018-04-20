@@ -1,3 +1,9 @@
+system76-firmware (1.0.0) bionic; urgency=medium
+
+  * Stable release.
+
+ -- Jeremy Soller <jeremy@system76.com>  Fri, 20 Apr 2018 08:29:54 -0600
+
 system76-firmware (0.0.1) bionic; urgency=medium
 
   * Initial release.
