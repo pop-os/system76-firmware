@@ -34,7 +34,7 @@ fn tool() -> Result<(), String> {
             "unschedule" => {
                 match unschedule() {
                     Ok(()) => Ok(()),
-                    Err(err) => Err(format!("failed to schedule: {}", err))
+                    Err(err) => Err(format!("failed to unschedule: {}", err))
                 }
             },
             other => Err(format!("invalid subcommand {} provided\n{}", other, usage)),
