@@ -29,6 +29,7 @@ install-cli: target/release/$(CLI)
 install-daemon: target/release/$(DAEMON)
 	install -D -m 0755 "target/release/$(DAEMON)" "$(DESTDIR)$(libdir)/$(PKG)/$(DAEMON)"
 	install -D -m 0644 "data/$(DAEMON).conf" "$(DESTDIR)$(sysconfdir)/dbus-1/system.d/$(DAEMON).conf"
+	install -D -m 0644 "debian/$(DAEMON).service" "$(DESTDIR)$(sysconfdir)/systemd/system/$(DAEMON).service"
 
 uninstall: uninstall-cli uninstall-daemon
 
@@ -38,6 +39,7 @@ uninstall-cli:
 uninstall-daemon:
 	rm -f "$(DESTDIR)$(libdir)/$(PKG)/$(DAEMON)"
 	rm -f "$(DESTDIR)$(sysconfdir)/dbus-1/system.d/$(DAEMON).conf"
+	rm -f "$(DESTDIR)$(sysconfdir)/systemd/system/$(DAEMON).service"
 
 update:
 	cargo update
