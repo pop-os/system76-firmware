@@ -4,7 +4,7 @@ version = "1.0.2"
 authors = ["Jeremy Soller <jeremy@system76.com>"]
 
 [[bin]]
-name = "system76-firmware"
+name = "system76-firmware-cli"
 path = "src/bin/cli.rs"
 
 [[bin]]
