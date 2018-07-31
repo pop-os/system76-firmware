@@ -10,7 +10,7 @@ datadir = $(datarootdir)
 .PHONY: all clean distclean install uninstall update
 
 PKG=system76-firmware
-CLI=$(PKG)
+CLI=$(PKG)-cli
 DAEMON=$(PKG)-daemon
 
 all: target/release/$(CLI) target/release/$(DAEMON)
