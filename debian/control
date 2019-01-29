@@ -25,6 +25,7 @@ Package: system76-firmware-daemon
 Architecture: amd64
 Depends:
   dbus,
+  dfu-programmer,
   systemd,
   ${misc:Depends},
   ${shlib:Depends}

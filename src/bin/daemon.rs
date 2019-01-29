@@ -5,6 +5,7 @@ extern crate system76_firmware;
 use dbus::{Connection, BusType, NameFlag};
 use dbus::tree::{Factory, MethodErr};
 use std::{io, process};
+use std::collections::HashMap;
 
 use system76_firmware::*;
 
@@ -149,6 +150,56 @@ fn daemon() -> Result<(), String> {
                     }
                 }
             })
+        )
+        .add_m(
+            f.method("ThelioIoDownload", (), move |m| {
+                eprintln!("ThelioIoDownload");
+                match thelio_io_download() {
+                    Ok((digest, revision)) => {
+                        let mret = m.msg.method_return().append2(digest, revision);
+                        Ok(vec![mret])
+                    },
+                    Err(err) => {
+                        eprintln!("{}", err);
+                        Err(MethodErr::failed(&err))
+                    }
+                }
+            })
+            .outarg::<&str,_>("digest")
+            .outarg::<&str,_>("revision")
+        )
+        .add_m(
+            f.method("ThelioIoList", (), move |m| {
+                eprintln!("ThelioIoList");
+                match thelio_io_list() {
+                    Ok(list) => {
+                        let mret = m.msg.method_return().append1(list);
+                        Ok(vec![mret])
+                    },
+                    Err(err) => {
+                        eprintln!("{}", err);
+                        Err(MethodErr::failed(&err))
+                    }
+                }
+            })
+            .outarg::<HashMap<String, String>,_>("list")
+        )
+        .add_m(
+            f.method("ThelioIoUpdate", (), move |m| {
+                let digest = m.msg.read1()?;
+                eprintln!("ThelioIoUpdate({})", digest);
+                match thelio_io_update(digest) {
+                    Ok(()) => {
+                        let mret = m.msg.method_return();
+                        Ok(vec![mret])
+                    },
+                    Err(err) => {
+                        eprintln!("{}", err);
+                        Err(MethodErr::failed(&err))
+                    }
+                }
+            })
+            .inarg::<&str,_>("digest")
         )
     ));
 
