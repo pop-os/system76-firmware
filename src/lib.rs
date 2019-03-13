@@ -13,10 +13,11 @@ use buildchain::{Downloader, Manifest};
 use std::fs;
 use std::path::Path;
 
+pub mod config;
+pub mod download;
+
 mod bios;
 mod boot;
-mod config;
-mod download;
 mod ec;
 mod me;
 mod mount;

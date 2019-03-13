@@ -1,6 +1,6 @@
 [package]
 name = "system76-firmware"
-version = "1.0.2"
+version = "1.0.3"
 authors = ["Jeremy Soller <jeremy@system76.com>"]
 
 [[bin]]
@@ -12,7 +12,7 @@ name = "system76-firmware-daemon"
 path = "src/bin/daemon.rs"
 
 [dependencies]
-buildchain = "0.4.8"
+buildchain = "0.4.9"
 dbus = "0.6.4"
 ecflash = { git = "https://github.com/system76/ecflash.git", branch = "stable" }
 libc = "0.2.50"
