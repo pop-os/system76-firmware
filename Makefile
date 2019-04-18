@@ -44,14 +44,6 @@ uninstall-daemon:
 update:
 	cargo update
 
-.cargo/config: vendor_config
-	mkdir -p .cargo
-	cp $< $@
-
-vendor: .cargo/config
-	cargo vendor
-	touch vendor
-
 target/release/$(CLI) target/release/$(DAEMON): Cargo.lock Cargo.toml src/* src/*/*
 	if [ -d vendor ]; \
 	then \
