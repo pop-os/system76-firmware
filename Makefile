@@ -48,6 +48,8 @@ target/release/$(CLI) target/release/$(DAEMON): Cargo.lock Cargo.toml src/* src/
 	if [ -d vendor ]; \
 	then \
 		cargo build --release --frozen; \
+		cargo build -p $(DAEMON) --release --frozen; \
 	else \
 		cargo build --release; \
+		cargo build -p $(DAEMON) --release --frozen; \
 	fi

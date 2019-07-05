@@ -1,0 +1,18 @@
+[package]
+name = "system76-firmware-daemon"
+version = "0.1.0"
+authors = [
+    "Jeremy Soller <jeremy@system76.com>",
+    "Michael Aaron Murphy <michael@system76.com>",
+]
+edition = "2018"
+
+[dependencies]
+dbus = "0.6.4"
+enum_derive = "0.1.7"
+err-derive = "0.1.5"
+libc = "0.2.58"
+shrinkwraprs = "0.2.1"
+system76-firmware = { path = "../" }
+serde = { version = "1.0.92", features = ["derive"] }
+serde_json = "1.0.39"
