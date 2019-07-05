@@ -6,6 +6,8 @@ pub static URL: &'static str = "https://firmware.system76.com/buildchain/";
 
 pub static PROJECT: &'static str = "firmware";
 
+pub static THELIO_IO_PROJECT: &'static str = "thelio-io-firmware";
+
 pub static BRANCH: &'static str = "master";
 
 pub static CERT: &'static [u8] = br#"

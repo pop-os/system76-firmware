@@ -3,6 +3,7 @@ extern crate ecflash;
 extern crate libc;
 extern crate lzma;
 extern crate plain;
+extern crate serde;
 extern crate serde_json;
 extern crate sha2;
 extern crate tar;
@@ -21,11 +22,16 @@ mod boot;
 mod ec;
 mod me;
 mod mount;
+mod thelio_io;
 mod util;
 
 pub use bios::bios;
 pub use ec::ec;
 pub use me::me;
+pub use thelio_io::{
+    ThelioIo, ThelioIoMetadata,
+    thelio_io_download, thelio_io_list, thelio_io_update
+};
 
 // Helper function for errors
 pub fn err_str<E: ::std::fmt::Display>(err: E) -> String {

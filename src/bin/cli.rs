@@ -17,7 +17,7 @@ fn tool() -> Result<(), String> {
         ));
     }
 
-    let usage = "subcommands:\n  schedule\n  unschedule";
+    let usage = "subcommands:\n  schedule\n  unschedule\n  thelio-io";
     match env::args().nth(1) {
         Some(arg) => match arg.as_str() {
             "schedule" => {
@@ -35,6 +35,17 @@ fn tool() -> Result<(), String> {
                 match unschedule() {
                     Ok(()) => Ok(()),
                     Err(err) => Err(format!("failed to unschedule: {}", err))
+                }
+            },
+            "thelio-io" => {
+                let (digest, _revision) = match thelio_io_download() {
+                    Ok(ok) => ok,
+                    Err(err) => return Err(format!("failed to download: {}", err))
+                };
+
+                match thelio_io_update(&digest) {
+                    Ok(()) => Ok(()),
+                    Err(err) => Err(format!("failed to update: {}", err))
                 }
             },
             other => Err(format!("invalid subcommand {} provided\n{}", other, usage)),
