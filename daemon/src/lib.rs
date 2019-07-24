@@ -194,10 +194,10 @@ pub struct Version {
     pub bios_me: bool,
     pub bios_set: bool,
     pub bios: Box<str>,
-    pub description: Box<str>,
+    pub description: Option<Box<str>>,
     pub me_cr: bool,
     pub me_hap: bool,
-    pub me: Box<str>,
+    pub me: Option<Box<str>>,
 }
 
 /// Signature of the firmware that can be installed on the system.
