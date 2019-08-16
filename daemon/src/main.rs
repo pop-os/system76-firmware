@@ -19,6 +19,8 @@ fn daemon() -> Result<(), String> {
         ));
     }
 
+    let in_whitelist = bios().ok().map_or(false, |(model, _)| model_is_whitelisted(&*model));
+
     let c = Connection::get_private(BusType::System).map_err(err_str)?;
     c.register_name(DBUS_DEST, NameFlag::ReplaceExisting as u32)
         .map_err(err_str)?;
@@ -31,6 +33,10 @@ fn daemon() -> Result<(), String> {
                 .add_m(
                     f.method(METHOD_BIOS, (), move |m| {
                         eprintln!("Bios");
+                        if !in_whitelist {
+                            return Err(MethodErr::failed(&"product is not in whitelist"));
+                        }
+
                         match bios() {
                             Ok((bios_model, bios_version)) => {
                                 let mret = m.msg.method_return().append2(bios_model, bios_version);
@@ -49,6 +55,9 @@ fn daemon() -> Result<(), String> {
                     f.method(METHOD_EC, (), move |m| {
                         let primary = m.msg.read1()?;
                         eprintln!("EmbeddedController({})", primary);
+                        if !in_whitelist {
+                            return Err(MethodErr::failed(&"product is not in whitelist"));
+                        }
                         match ec(primary) {
                             Ok((ec_project, ec_version)) => {
                                 let mret = m.msg.method_return().append2(ec_project, ec_version);
@@ -67,6 +76,9 @@ fn daemon() -> Result<(), String> {
                 .add_m(
                     f.method(METHOD_ME, (), move |m| {
                         eprintln!("ManagementEngine");
+                        if !in_whitelist {
+                            return Err(MethodErr::failed(&"product is not in whitelist"));
+                        }
                         match me() {
                             Ok(Some(me_version)) => {
                                 let mret = m.msg.method_return().append2(true, me_version);
@@ -88,6 +100,9 @@ fn daemon() -> Result<(), String> {
                 .add_m(
                     f.method(METHOD_FIRMWARE_ID, (), move |m| {
                         eprintln!("FirmwareId");
+                        if !in_whitelist {
+                            return Err(MethodErr::failed(&"product is not in whitelist"));
+                        }
                         match firmware_id() {
                             Ok(id) => {
                                 let mret = m.msg.method_return().append1(id);
@@ -104,6 +119,9 @@ fn daemon() -> Result<(), String> {
                 .add_m(
                     f.method(METHOD_DOWNLOAD, (), move |m| {
                         eprintln!("Download");
+                        if !in_whitelist {
+                            return Err(MethodErr::failed(&"product is not in whitelist"));
+                        }
                         match download() {
                             Ok((digest, changelog)) => {
                                 let mret = m.msg.method_return().append2(digest, changelog);
@@ -122,6 +140,9 @@ fn daemon() -> Result<(), String> {
                     f.method(METHOD_SCHEDULE, (), move |m| {
                         let digest = m.msg.read1()?;
                         eprintln!("Schedule({})", digest);
+                        if !in_whitelist {
+                            return Err(MethodErr::failed(&"product is not in whitelist"));
+                        }
                         match schedule(digest) {
                             Ok(()) => {
                                 let mret = m.msg.method_return();
@@ -137,6 +158,9 @@ fn daemon() -> Result<(), String> {
                 )
                 .add_m(f.method(METHOD_UNSCHEDULE, (), move |m| {
                     eprintln!("Unschedule");
+                    if !in_whitelist {
+                        return Err(MethodErr::failed(&"product is not in whitelist"));
+                    }
                     match unschedule() {
                         Ok(()) => {
                             let mret = m.msg.method_return();

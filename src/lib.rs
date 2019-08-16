@@ -33,6 +33,57 @@ pub use thelio_io::{
     thelio_io_download, thelio_io_list, thelio_io_update
 };
 
+const MODEL_WHITELIST: &[&str] = &[
+    "addw1",
+    "bonw11",
+    "bonw12",
+    "bonw13",
+    "darp5",
+    "galp2",
+    "galp3",
+    "galp3-b",
+    "galp3-c",
+    "gaze10",
+    "gaze11",
+    "gaze12",
+    "gaze13",
+    "gaze14",
+    "kudu2",
+    "kudu3",
+    "kudu4",
+    "kudu5",
+    "lemu6",
+    "lemu7",
+    "lemu8",
+    "meer4",
+    "orxp1",
+    "oryp2",
+    "oryp2-ess",
+    "oryp3",
+    "oryp3-b",
+    "oryp3-ess",
+    "oryp4",
+    "oryp4-b",
+    "oryp5",
+    "serw9",
+    "serw10",
+    "serw11",
+    "serw11-b",
+    "thelio-b1",
+    "thelio-major-b1",
+    "thelio-major-b1.1",
+    "thelio-major-b2",
+    "thelio-major-r1",
+    "thelio-r1",
+];
+
+pub fn model_is_whitelisted(model: &str) -> bool {
+    MODEL_WHITELIST
+        .into_iter()
+        .find(|whitelist| model == **whitelist)
+        .is_some()
+}
+
 // Helper function for errors
 pub fn err_str<E: ::std::fmt::Display>(err: E) -> String {
     format!("{}", err)
