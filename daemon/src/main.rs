@@ -6,6 +6,13 @@ use std::{io, process};
 use system76_firmware::*;
 use system76_firmware_daemon::*;
 
+fn bios_vendor() -> Result<String, String> {
+    match util::read_string("/sys/class/dmi/id/bios_vendor") {
+        Ok(ok) => Ok(ok.trim().to_string()),
+        Err(err) => Err(format!("failed to read BIOS vendor: {}", err)),
+    }
+}
+
 fn daemon() -> Result<(), String> {
     if unsafe { libc::geteuid() } != 0 {
         return Err("must be run as root".into());
@@ -19,7 +26,8 @@ fn daemon() -> Result<(), String> {
         ));
     }
 
-    let in_whitelist = bios().ok().map_or(false, |(model, _)| model_is_whitelisted(&*model));
+    let in_whitelist = bios().ok().map_or(false, |(model, _)| model_is_whitelisted(&*model))
+        && bios_vendor().ok().map_or(false, |vendor| vendor != "coreboot");
 
     let c = Connection::get_private(BusType::System).map_err(err_str)?;
     c.register_name(DBUS_DEST, NameFlag::ReplaceExisting as u32)
