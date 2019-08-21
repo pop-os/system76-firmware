@@ -16,6 +16,7 @@ use std::path::Path;
 
 pub mod config;
 pub mod download;
+pub mod util;
 
 mod bios;
 mod boot;
@@ -23,7 +24,6 @@ mod ec;
 mod me;
 mod mount;
 mod thelio_io;
-mod util;
 
 pub use bios::bios;
 pub use ec::ec;
