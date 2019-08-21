@@ -7,9 +7,10 @@ use system76_firmware::*;
 use system76_firmware_daemon::*;
 
 fn bios_vendor() -> Result<String, String> {
-    util::read_string("/sys/class/dmi/id/bios_vendor").map_err(|err| {
-        format!("failed to read BIOS vendor: {}", err)
-    })
+    match util::read_string("/sys/class/dmi/id/bios_vendor") {
+        Ok(ok) => Ok(ok.trim().to_string()),
+        Err(err) => Err(format!("failed to read BIOS vendor: {}", err)),
+    }
 }
 
 fn daemon() -> Result<(), String> {
