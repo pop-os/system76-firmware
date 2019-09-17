@@ -4,15 +4,13 @@ use std::path::Path;
 use mount;
 use util;
 
-pub fn set_next_boot() -> Result<(), String> {
+pub fn set_next_boot(efi_dir: &str) -> Result<(), String> {
     let mounts = match mount::Mount::all() {
         Ok(ok) => ok,
         Err(err) => {
             return Err(format!("failed to read mounts: {}", err));
         }
     };
-
-    let efi_dir = "/boot/efi";
 
     let efi_mount = match mounts.iter().find(|mount| {
         if let Some(dest) = mount.dest.to_str() {

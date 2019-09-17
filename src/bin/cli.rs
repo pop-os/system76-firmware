@@ -17,6 +17,9 @@ fn tool() -> Result<(), String> {
         ));
     }
 
+    //TODO: allow override with parameter
+    let efi_dir = "/boot/efi";
+
     let usage = "subcommands:\n  schedule\n  unschedule\n  thelio-io";
     match env::args().nth(1) {
         Some(arg) => match arg.as_str() {
@@ -26,13 +29,13 @@ fn tool() -> Result<(), String> {
                     Err(err) => return Err(format!("failed to download: {}", err))
                 };
 
-                match schedule(&digest) {
+                match schedule(&digest, efi_dir) {
                     Ok(()) => Ok(()),
                     Err(err) => Err(format!("failed to schedule: {}", err))
                 }
             },
             "unschedule" => {
-                match unschedule() {
+                match unschedule(efi_dir) {
                     Ok(()) => Ok(()),
                     Err(err) => Err(format!("failed to unschedule: {}", err))
                 }

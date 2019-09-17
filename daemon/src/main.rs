@@ -26,6 +26,9 @@ fn daemon() -> Result<(), String> {
         ));
     }
 
+    //TODO: allow override with parameter
+    let efi_dir = "/boot/efi";
+
     let in_whitelist = bios().ok().map_or(false, |(model, _)| model_is_whitelisted(&*model))
         && bios_vendor().ok().map_or(false, |vendor| vendor != "coreboot");
 
@@ -151,7 +154,7 @@ fn daemon() -> Result<(), String> {
                         if !in_whitelist {
                             return Err(MethodErr::failed(&"product is not in whitelist"));
                         }
-                        match schedule(digest) {
+                        match schedule(digest, efi_dir) {
                             Ok(()) => {
                                 let mret = m.msg.method_return();
                                 Ok(vec![mret])
@@ -169,7 +172,7 @@ fn daemon() -> Result<(), String> {
                     if !in_whitelist {
                         return Err(MethodErr::failed(&"product is not in whitelist"));
                     }
-                    match unschedule() {
+                    match unschedule(efi_dir) {
                         Ok(()) => {
                             let mret = m.msg.method_return();
                             Ok(vec![mret])
