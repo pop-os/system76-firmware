@@ -89,11 +89,15 @@ pub fn err_str<E: ::std::fmt::Display>(err: E) -> String {
     format!("{}", err)
 }
 
+pub fn generate_firmware_id(model: &str, project: &str) -> String {
+    let project_hash = util::sha256(project.as_bytes());
+    format!("{}_{}", model, project_hash)
+}
+
 pub fn firmware_id() -> Result<String, String> {
     let (bios_model, _bios_version) = bios::bios()?;
     let (ec_project, _ec_version) = ec::ec_or_none(true);
-    let ec_hash = util::sha256(ec_project.as_bytes());
-    Ok(format!("{}_{}", bios_model, ec_hash))
+    Ok(generate_firmware_id(&bios_model, &ec_project))
 }
 
 fn remove_dir<P: AsRef<Path>>(path: P) -> Result<(), String> {
@@ -111,8 +115,10 @@ fn remove_dir<P: AsRef<Path>>(path: P) -> Result<(), String> {
 }
 
 pub fn download() -> Result<(String, String), String> {
-    let firmware_id = firmware_id()?;
+    download_firmware_id(&firmware_id()?)
+}
 
+pub fn download_firmware_id(firmware_id: &str) -> Result<(String, String), String> {
     let dl = Downloader::new(
         config::KEY,
         config::URL,
@@ -171,8 +177,10 @@ fn extract<P: AsRef<Path>>(digest: &str, file: &str, path: P) -> Result<(), Stri
 }
 
 pub fn schedule(digest: &str) -> Result<(), String> {
-    let firmware_id = firmware_id()?;
+    schedule_firmware_id(digest, &firmware_id()?)
+}
 
+pub fn schedule_firmware_id(digest: &str, firmware_id: &str) -> Result<(), String> {
     if ! Path::new("/sys/firmware/efi").exists() {
         return Err(format!("must be run using UEFI boot"));
     }
