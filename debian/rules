@@ -17,4 +17,4 @@ override_dh_auto_clean:
 override_dh_auto_build:
 	tar pxf vendor.tar.xz
 	env CARGO_HOME="$$(pwd)/target/cargo" \
-	make all
+	dh_auto_build
