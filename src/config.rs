@@ -8,8 +8,7 @@ pub static PROJECT: &'static str = "firmware";
 
 pub static THELIO_IO_PROJECT: &'static str = "thelio-io-firmware";
 
-//TOOD: Change back to master
-pub static BRANCH: &'static str = "coreboot";
+pub static BRANCH: &'static str = "master";
 
 pub static CERT: &'static [u8] = br#"
 -----BEGIN CERTIFICATE-----
