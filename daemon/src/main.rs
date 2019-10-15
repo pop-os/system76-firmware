@@ -29,8 +29,7 @@ fn daemon() -> Result<(), String> {
     //TODO: allow override with parameter
     let efi_dir = "/boot/efi";
 
-    let in_whitelist = bios().ok().map_or(false, |(model, _)| model_is_whitelisted(&*model))
-        && bios_vendor().ok().map_or(false, |vendor| vendor != "coreboot");
+    let in_whitelist = bios().ok().map_or(false, |(model, _)| model_is_whitelisted(&*model));
 
     let c = Connection::get_private(BusType::System).map_err(err_str)?;
     c.register_name(DBUS_DEST, NameFlag::ReplaceExisting as u32)
