@@ -1,6 +1,6 @@
 [package]
 name = "system76-firmware"
-version = "1.0.6"
+version = "1.0.7"
 authors = ["Jeremy Soller <jeremy@system76.com>"]
 
 [workspace]
