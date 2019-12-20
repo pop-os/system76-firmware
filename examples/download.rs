@@ -13,8 +13,10 @@ fn inner() -> Result<(), String> {
         Some(config::CERT)
     )?;
 
+    eprintln!("downloading tail");
     let tail = dl.tail()?;
 
+    eprintln!("opening download cache");
     let cache = download::Cache::new(config::CACHE, Some(dl))?;
 
     eprintln!("downloading manifest.json");

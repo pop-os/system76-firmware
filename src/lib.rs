@@ -130,8 +130,10 @@ pub fn download_firmware_id(firmware_id: &str) -> Result<(String, String), Strin
         Some(config::CERT)
     )?;
 
+    eprintln!("downloading tail");
     let tail = dl.tail()?;
 
+    eprintln!("opening download cache");
     let cache = download::Cache::new(config::CACHE, Some(dl))?;
 
     eprintln!("downloading manifest.json");
@@ -152,6 +154,7 @@ pub fn download_firmware_id(firmware_id: &str) -> Result<(String, String), Strin
         cache.object(&digest)?
     };
 
+    eprintln!("loading changelog.json");
     let changelog = util::extract_file(&firmware_data, "./changelog.json").map_err(err_str)?;
 
     Ok((tail.digest.to_string(), changelog))
