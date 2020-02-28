@@ -1,3 +1,9 @@
+system76-firmware (1.0.9) bionic; urgency=medium
+
+  * Add support for system76-ec
+
+ -- Jeremy Soller <jeremy@system76.com>  Tue, 31 Mar 2020 12:11:03 -0600
+
 system76-firmware (1.0.8) bionic; urgency=medium
 
   * 1.0.8 release.
