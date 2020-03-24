@@ -5,7 +5,7 @@ extern crate serde;
 #[macro_use]
 extern crate shrinkwraprs;
 
-use dbus::{BusType, Connection, Message};
+use dbus::{ffidisp::Connection, Message};
 use std::collections::HashMap;
 
 pub const DBUS_DEST: &str = "com.system76.FirmwareDaemon";
@@ -48,7 +48,7 @@ pub struct Client(Connection);
 
 impl Client {
     pub fn new() -> Result<Self, Error> {
-        Connection::get_private(BusType::System)
+        Connection::new_system()
             .map_err(Error::Connection)
             .map(Self)
     }
