@@ -1,5 +1,5 @@
 use dbus::tree::{Factory, MethodErr};
-use dbus::{BusType, Connection, NameFlag};
+use dbus::ffidisp::{Connection, NameFlag};
 use std::collections::HashMap;
 use std::{io, process};
 
@@ -31,7 +31,7 @@ fn daemon() -> Result<(), String> {
 
     let in_whitelist = bios().ok().map_or(false, |(model, _)| model_is_whitelisted(&*model));
 
-    let c = Connection::get_private(BusType::System).map_err(err_str)?;
+    let c = Connection::new_system().map_err(err_str)?;
     c.register_name(DBUS_DEST, NameFlag::ReplaceExisting as u32)
         .map_err(err_str)?;
 
