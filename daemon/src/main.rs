@@ -26,8 +26,10 @@ fn daemon() -> Result<(), String> {
         ));
     }
 
-    //TODO: allow override with parameter
-    let efi_dir = "/boot/efi";
+    let efi_dir = match util::get_efi_mnt() {
+        Some(x) => x,
+        None => return Err("EFI mount point not found".into())
+    };
 
     let in_whitelist = bios().ok().map_or(false, |(model, _)| model_is_whitelisted(&*model));
 

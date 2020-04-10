@@ -4,6 +4,16 @@ use std::io::Read;
 use sha2::{Sha256, Digest};
 use tar::Archive;
 
+pub fn get_efi_mnt() -> Option<&'static str> {
+   let efi = path::Path::new("EFI");
+   [
+     path::Path::new("/boot"),
+     path::Path::new("/boot/efi"),
+   ].iter()
+    .find(|x| x.join(efi).as_path().is_dir())
+    .and_then(|x| x.to_str())
+}
+
 pub fn extract<P: AsRef<path::Path>>(data: &[u8], p: P) -> io::Result<()> {
     let decompressor = LzmaReader::new_decompressor(data).map_err(|err| io::Error::new(
         io::ErrorKind::Other,
