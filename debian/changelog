@@ -1,3 +1,9 @@
+system76-firmware (1.0.10) bionic; urgency=medium
+
+  * Add serw12
+
+ -- Jeremy Soller <jeremy@system76.com>  Tue, 14 Apr 2020 08:46:44 -0600
+
 system76-firmware (1.0.9) bionic; urgency=medium
 
   * Add support for system76-ec
