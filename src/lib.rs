@@ -84,6 +84,7 @@ const MODEL_WHITELIST: &[&str] = &[
     "thelio-mega-b1",
     "thelio-mega-r1",
     "thelio-r1",
+    "thelio-r2",
 ];
 
 pub fn model_is_whitelisted(model: &str) -> bool {
