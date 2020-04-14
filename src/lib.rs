@@ -74,6 +74,7 @@ const MODEL_WHITELIST: &[&str] = &[
     "serw10",
     "serw11",
     "serw11-b",
+    "serw12",
     "thelio-b1",
     "thelio-major-b1",
     "thelio-major-b1.1",
