@@ -1,7 +1,7 @@
 use dbus::tree::{Factory, MethodErr};
 use dbus::ffidisp::{Connection, NameFlag};
 use std::collections::HashMap;
-use std::{io, process};
+use std::{io, process, rc};
 
 use system76_firmware::*;
 use system76_firmware_daemon::*;
@@ -27,7 +27,7 @@ fn daemon() -> Result<(), String> {
     }
 
     let efi_dir = match util::get_efi_mnt() {
-        Some(x) => x,
+        Some(x) => rc::Rc::new(x),
         None => return Err("EFI mount point not found".into())
     };
 
@@ -149,13 +149,36 @@ fn daemon() -> Result<(), String> {
                     .outarg::<&str, _>("changelog"),
                 )
                 .add_m(
-                    f.method(METHOD_SCHEDULE, (), move |m| {
-                        let digest = m.msg.read1()?;
-                        eprintln!("Schedule({})", digest);
+                    f.method(METHOD_SCHEDULE, (), {
+                        let efi_dir = rc::Rc::clone(&efi_dir);
+                        move |m| {
+                            let digest = m.msg.read1()?;
+                            eprintln!("Schedule({})", digest);
+                            if !in_whitelist {
+                                return Err(MethodErr::failed(&"product is not in whitelist"));
+                            }
+                            match schedule(digest, &efi_dir) {
+                                Ok(()) => {
+                                    let mret = m.msg.method_return();
+                                    Ok(vec![mret])
+                                }
+                                Err(err) => {
+                                    eprintln!("{}", err);
+                                    Err(MethodErr::failed(&err))
+                                }
+                            }
+                        }
+                    })
+                    .inarg::<&str, _>("digest"),
+                )
+                .add_m(f.method(METHOD_UNSCHEDULE, (), {
+                    let efi_dir = rc::Rc::clone(&efi_dir);
+                    move |m| {
+                        eprintln!("Unschedule");
                         if !in_whitelist {
                             return Err(MethodErr::failed(&"product is not in whitelist"));
                         }
-                        match schedule(digest, efi_dir) {
+                        match unschedule(&efi_dir) {
                             Ok(()) => {
                                 let mret = m.msg.method_return();
                                 Ok(vec![mret])
@@ -164,23 +187,6 @@ fn daemon() -> Result<(), String> {
                                 eprintln!("{}", err);
                                 Err(MethodErr::failed(&err))
                             }
-                        }
-                    })
-                    .inarg::<&str, _>("digest"),
-                )
-                .add_m(f.method(METHOD_UNSCHEDULE, (), move |m| {
-                    eprintln!("Unschedule");
-                    if !in_whitelist {
-                        return Err(MethodErr::failed(&"product is not in whitelist"));
-                    }
-                    match unschedule(efi_dir) {
-                        Ok(()) => {
-                            let mret = m.msg.method_return();
-                            Ok(vec![mret])
-                        }
-                        Err(err) => {
-                            eprintln!("{}", err);
-                            Err(MethodErr::failed(&err))
                         }
                     }
                 }))

@@ -31,13 +31,13 @@ fn tool() -> Result<(), String> {
                     Err(err) => return Err(format!("failed to download: {}", err))
                 };
 
-                match schedule(&digest, efi_dir) {
+                match schedule(&digest, &efi_dir) {
                     Ok(()) => Ok(()),
                     Err(err) => Err(format!("failed to schedule: {}", err))
                 }
             },
             "unschedule" => {
-                match unschedule(efi_dir) {
+                match unschedule(&efi_dir) {
                     Ok(()) => Ok(()),
                     Err(err) => Err(format!("failed to unschedule: {}", err))
                 }
