@@ -1,3 +1,9 @@
+system76-firmware (1.0.11) bionic; urgency=medium
+
+  * Add addw2 and gaze15
+
+ -- Jeremy Soller <jeremy@system76.com>  Wed, 22 Apr 2020 21:06:09 -0600
+
 system76-firmware (1.0.10) bionic; urgency=medium
 
   * Add serw12
