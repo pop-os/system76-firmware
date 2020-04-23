@@ -36,6 +36,7 @@ pub use thelio_io::{
 
 const MODEL_WHITELIST: &[&str] = &[
     "addw1",
+    "addw2",
     "bonw11",
     "bonw12",
     "bonw13",
@@ -51,6 +52,7 @@ const MODEL_WHITELIST: &[&str] = &[
     "gaze12",
     "gaze13",
     "gaze14",
+    "gaze15",
     "kudu2",
     "kudu3",
     "kudu4",
