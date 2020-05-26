@@ -1,3 +1,9 @@
+system76-firmware (1.0.12) focal; urgency=medium
+
+  * Add thelio-b2
+
+ -- Benjamin <benjamin@system76.com>  Tue, 26 May 2020 12:48:46 -0600
+
 system76-firmware (1.0.11) bionic; urgency=medium
 
   * Add addw2 and gaze15
