@@ -9,7 +9,8 @@ pub fn get_efi_mnt() -> Option<String> {
         .output()
         .ok()
         .filter(|x| x.status.success())
-        .and_then(|x| String::from_utf8(x.stdout).ok());
+        .and_then(|x| String::from_utf8(x.stdout).ok())
+        .and_then(|x| x.lines().next().map(String::from));
 
     bootctl_esp.or_else(|| {
         let efi = path::Path::new("EFI");
