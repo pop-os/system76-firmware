@@ -17,8 +17,10 @@ fn tool() -> Result<(), String> {
         ));
     }
 
-    //TODO: allow override with parameter
-    let efi_dir = "/boot/efi";
+    let efi_dir = match util::get_efi_mnt() {
+        Some(x) => x,
+        None => return Err("EFI mount point not found".into())
+    };
 
     let usage = "subcommands:\n  schedule\n  unschedule\n  thelio-io";
     match env::args().nth(1) {
@@ -29,13 +31,13 @@ fn tool() -> Result<(), String> {
                     Err(err) => return Err(format!("failed to download: {}", err))
                 };
 
-                match schedule(&digest, efi_dir) {
+                match schedule(&digest, &efi_dir) {
                     Ok(()) => Ok(()),
                     Err(err) => Err(format!("failed to schedule: {}", err))
                 }
             },
             "unschedule" => {
-                match unschedule(efi_dir) {
+                match unschedule(&efi_dir) {
                     Ok(()) => Ok(()),
                     Err(err) => Err(format!("failed to unschedule: {}", err))
                 }

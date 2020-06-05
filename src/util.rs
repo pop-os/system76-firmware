@@ -1,8 +1,27 @@
 use lzma::reader::LzmaReader;
-use std::{fs, io, path};
+use std::{fs, io, path, process};
 use std::io::Read;
 use sha2::{Sha256, Digest};
 use tar::Archive;
+
+pub fn get_efi_mnt() -> Option<String> {
+    let bootctl_esp = process::Command::new("bootctl").args(&["--print-esp-path"])
+        .output()
+        .ok()
+        .filter(|x| x.status.success())
+        .and_then(|x| String::from_utf8(x.stdout).ok())
+        .and_then(|x| x.lines().next().map(String::from));
+
+    bootctl_esp.or_else(|| {
+        let efi = path::Path::new("EFI");
+        [
+            path::Path::new("/boot"),
+            path::Path::new("/boot/efi"),
+        ].iter()
+         .find(|x| x.join(efi).as_path().is_dir())
+         .and_then(|x| x.to_str().map(String::from))
+    })
+}
 
 pub fn extract<P: AsRef<path::Path>>(data: &[u8], p: P) -> io::Result<()> {
     let decompressor = LzmaReader::new_decompressor(data).map_err(|err| io::Error::new(
