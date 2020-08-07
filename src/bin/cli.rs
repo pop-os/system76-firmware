@@ -22,16 +22,29 @@ fn tool() -> Result<(), String> {
         None => return Err("EFI mount point not found".into())
     };
 
+    //TODO: improve CLI parsing
+    let transition_kind = match env::args().nth(2) {
+        Some(arg) => match arg.as_str() {
+            "--open" => TransitionKind::Open,
+            "--proprietary" => TransitionKind::Proprietary,
+            _ => return Err(format!(
+                "invalid flag {} provided\nOnly --open or --proprietary are supported",
+                arg
+            )),
+        },
+        None => TransitionKind::Automatic,
+    };
+
     let usage = "subcommands:\n  schedule\n  unschedule\n  thelio-io";
     match env::args().nth(1) {
         Some(arg) => match arg.as_str() {
             "schedule" => {
-                let (digest, _changelog) = match download() {
+                let (digest, _changelog) = match download(transition_kind) {
                     Ok(ok) => ok,
                     Err(err) => return Err(format!("failed to download: {}", err))
                 };
 
-                match schedule(&digest, &efi_dir) {
+                match schedule(&digest, &efi_dir, transition_kind) {
                     Ok(()) => Ok(()),
                     Err(err) => Err(format!("failed to schedule: {}", err))
                 }
