@@ -24,7 +24,9 @@ mod boot;
 mod ec;
 mod me;
 mod mount;
+mod sideband;
 mod thelio_io;
+mod transition;
 
 pub use bios::bios;
 pub use ec::{ec, ec_or_none};
@@ -33,6 +35,7 @@ pub use thelio_io::{
     ThelioIo, ThelioIoMetadata,
     thelio_io_download, thelio_io_list, thelio_io_update
 };
+pub use transition::TransitionKind;
 
 const MODEL_WHITELIST: &[&str] = &[
     "addw1",
@@ -106,15 +109,42 @@ pub fn err_str<E: ::std::fmt::Display>(err: E) -> String {
     format!("{}", err)
 }
 
+pub fn model_variant(model: &str) -> Result<u8, String> {
+    let pins: &[(u8, u8)] = match model {
+        "gaze15" => &[
+            // BOARD_ID1 = GPP_G0
+            (0x6D, 0x60),
+            // BOARD_ID2 = GPP_G1
+            (0x6D, 0x62),
+        ],
+        _ => &[],
+    };
+
+    let mut variant = 0;
+    if ! pins.is_empty() {
+        let sideband = unsafe { sideband::Sideband::new(0xFD00_0000)? };
+        for (i, pin) in pins.iter().enumerate() {
+            let data = unsafe { sideband.gpio(pin.0, pin.1) };
+            if data & (1 << 1) > 0 {
+                variant |= 1 << i;
+            }
+        }
+    }
+
+    Ok(variant)
+}
+
 pub fn generate_firmware_id(model: &str, project: &str) -> String {
     let project_hash = util::sha256(project.as_bytes());
     format!("{}_{}", model, project_hash)
 }
 
-pub fn firmware_id() -> Result<String, String> {
+pub fn firmware_id(transition_kind: TransitionKind) -> Result<String, String> {
     let (bios_model, _bios_version) = bios::bios()?;
+    let variant = model_variant(&bios_model)?;
     let (ec_project, _ec_version) = ec_or_none(true);
-    Ok(generate_firmware_id(&bios_model, &ec_project))
+    let (transition_model, transition_ec) = transition_kind.transition(&bios_model, variant, &ec_project);
+    Ok(generate_firmware_id(&transition_model, &transition_ec))
 }
 
 fn remove_dir<P: AsRef<Path>>(path: P) -> Result<(), String> {
@@ -131,8 +161,8 @@ fn remove_dir<P: AsRef<Path>>(path: P) -> Result<(), String> {
     Ok(())
 }
 
-pub fn download() -> Result<(String, String), String> {
-    download_firmware_id(&firmware_id()?)
+pub fn download(transition_kind: TransitionKind) -> Result<(String, String), String> {
+    download_firmware_id(&firmware_id(transition_kind)?)
 }
 
 pub fn download_firmware_id(firmware_id: &str) -> Result<(String, String), String> {
@@ -196,8 +226,8 @@ fn extract<P: AsRef<Path>>(digest: &str, file: &str, path: P) -> Result<(), Stri
     Ok(())
 }
 
-pub fn schedule(digest: &str, efi_dir: &str) -> Result<(), String> {
-    schedule_firmware_id(digest, efi_dir, &firmware_id()?)
+pub fn schedule(digest: &str, efi_dir: &str, transition_kind: TransitionKind) -> Result<(), String> {
+    schedule_firmware_id(digest, efi_dir, &firmware_id(transition_kind)?)
 }
 
 pub fn schedule_firmware_id(digest: &str, efi_dir: &str, firmware_id: &str) -> Result<(), String> {

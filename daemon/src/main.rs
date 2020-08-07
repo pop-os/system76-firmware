@@ -33,6 +33,8 @@ fn daemon() -> Result<(), String> {
 
     let in_whitelist = bios().ok().map_or(false, |(model, _)| model_is_whitelisted(&*model));
 
+    let transition_kind = TransitionKind::Automatic;
+
     let c = Connection::new_system().map_err(err_str)?;
     c.register_name(DBUS_DEST, NameFlag::ReplaceExisting as u32)
         .map_err(err_str)?;
@@ -115,7 +117,7 @@ fn daemon() -> Result<(), String> {
                         if !in_whitelist {
                             return Err(MethodErr::failed(&"product is not in whitelist"));
                         }
-                        match firmware_id() {
+                        match firmware_id(transition_kind) {
                             Ok(id) => {
                                 let mret = m.msg.method_return().append1(id);
                                 Ok(vec![mret])
@@ -134,7 +136,7 @@ fn daemon() -> Result<(), String> {
                         if !in_whitelist {
                             return Err(MethodErr::failed(&"product is not in whitelist"));
                         }
-                        match download() {
+                        match download(transition_kind) {
                             Ok((digest, changelog)) => {
                                 let mret = m.msg.method_return().append2(digest, changelog);
                                 Ok(vec![mret])
@@ -157,7 +159,7 @@ fn daemon() -> Result<(), String> {
                             if !in_whitelist {
                                 return Err(MethodErr::failed(&"product is not in whitelist"));
                             }
-                            match schedule(digest, &efi_dir) {
+                            match schedule(digest, &efi_dir, transition_kind) {
                                 Ok(()) => {
                                     let mret = m.msg.method_return();
                                     Ok(vec![mret])
