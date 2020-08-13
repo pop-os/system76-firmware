@@ -1,3 +1,9 @@
+system76-firmware (1.0.14) focal; urgency=medium
+
+  * Add bonw14
+
+ -- Jeremy Soller <jeremy@system76.com>  Thu, 13 Aug 2020 10:58:49 -0600
+
 system76-firmware (1.0.13) focal; urgency=medium
 
   * Add oryp6
