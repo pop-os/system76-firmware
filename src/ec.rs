@@ -3,7 +3,7 @@ use ectool::Timeout;
 use std::str;
 use std::time::{Duration, Instant};
 
-use err_str;
+use crate::err_str;
 
 // Helper function for errors
 pub fn ectool_err<E: ::std::fmt::Debug>(err: E) -> String {

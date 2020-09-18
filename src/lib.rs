@@ -1,16 +1,3 @@
-extern crate buildchain;
-extern crate ecflash;
-extern crate ectool;
-extern crate libc;
-extern crate lzma;
-extern crate plain;
-extern crate serde;
-extern crate serde_json;
-extern crate sha2;
-extern crate tar;
-extern crate tempdir;
-extern crate uuid;
-
 use buildchain::{Downloader, Manifest};
 use std::fs;
 use std::path::Path;
@@ -28,14 +15,14 @@ mod sideband;
 mod thelio_io;
 mod transition;
 
-pub use bios::bios;
-pub use ec::{ec, ec_or_none};
-pub use me::me;
-pub use thelio_io::{
+pub use crate::bios::bios;
+pub use crate::ec::{ec, ec_or_none};
+pub use crate::me::me;
+pub use crate::thelio_io::{
     ThelioIo, ThelioIoMetadata,
     thelio_io_download, thelio_io_list, thelio_io_update
 };
-pub use transition::TransitionKind;
+pub use crate::transition::TransitionKind;
 
 const MODEL_WHITELIST: &[&str] = &[
     "addw1",

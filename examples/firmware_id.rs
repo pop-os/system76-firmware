@@ -1,5 +1,3 @@
-extern crate system76_firmware;
-
 use std::process;
 use system76_firmware::{
     bios,

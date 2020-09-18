@@ -1,6 +1,3 @@
-extern crate libc;
-extern crate system76_firmware;
-
 use std::{env, io, process};
 use system76_firmware::*;
 
