@@ -130,7 +130,7 @@ pub fn firmware_id(transition_kind: TransitionKind) -> Result<String, String> {
     let (bios_model, _bios_version) = bios::bios()?;
     let variant = model_variant(&bios_model)?;
     let (ec_project, _ec_version) = ec_or_none(true);
-    let (transition_model, transition_ec) = transition_kind.transition(&bios_model, variant, &ec_project);
+    let (transition_model, transition_ec) = transition_kind.transition(&bios_model, variant, &ec_project)?;
     Ok(generate_firmware_id(&transition_model, &transition_ec))
 }
 

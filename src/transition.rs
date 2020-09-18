@@ -1,3 +1,4 @@
+// Make sure this is up to date with support article
 static TRANSITIONS: &'static [Transition] = &[
     Transition::new("addw2", "PBx0Dx2", false),
     Transition::new("darp6", "N150CU", true),
@@ -51,7 +52,7 @@ pub enum TransitionKind {
 }
 
 impl TransitionKind {
-    pub fn transition(self, model: &str, variant: u8, project: &str) -> (String, String) {
+    pub fn transition(self, model: &str, variant: u8, project: &str) -> Result<(String, String), String> {
         for transition in TRANSITIONS.iter() {
             if model == transition.model && variant == transition.variant {
                 let new_project = if project == transition.open {
@@ -74,10 +75,20 @@ impl TransitionKind {
                     project
                 };
 
-                return (model.to_string(), new_project.to_string());
+                return Ok((model.to_string(), new_project.to_string()));
             }
         }
 
-        (model.to_string(), project.to_string())
+        // Fallback in case transition is not defined
+        match self {
+            TransitionKind::Open if project != "76ec" => {
+                Err(format!("Model '{}' is not supported by open firmware and EC at this time", model))
+            },
+            TransitionKind::Proprietary if project == "76ec" => {
+                Err(format!("Model '{}' is not supported by proprietary firmware and EC at this time", model))
+            },
+            _ => Ok((model.to_string(), project.to_string())),
+        }
+
     }
 }
