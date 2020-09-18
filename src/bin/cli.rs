@@ -1,4 +1,5 @@
-use std::{env, io, process};
+use clap::{App, AppSettings, Arg, SubCommand};
+use std::{io, process};
 use system76_firmware::*;
 
 fn tool() -> Result<(), String> {
@@ -19,53 +20,58 @@ fn tool() -> Result<(), String> {
         None => return Err("EFI mount point not found".into())
     };
 
-    //TODO: improve CLI parsing
-    let transition_kind = match env::args().nth(2) {
-        Some(arg) => match arg.as_str() {
-            "--open" => TransitionKind::Open,
-            "--proprietary" => TransitionKind::Proprietary,
-            _ => return Err(format!(
-                "invalid flag {} provided\nOnly --open or --proprietary are supported",
-                arg
-            )),
-        },
-        None => TransitionKind::Automatic,
-    };
+    let matches = App::new("system76-firmware-cli")
+        .setting(AppSettings::SubcommandRequired)
+        .setting(AppSettings::DisableVersion)
+        .setting(AppSettings::VersionlessSubcommands)
+        .subcommand(SubCommand::with_name("schedule")
+                    .arg(Arg::with_name("open")
+                         .long("open"))
+                    .arg(Arg::with_name("--proprietary")
+                         .long("proprietary")
+                         .conflicts_with("open")))
+        .subcommand(SubCommand::with_name("unschedule"))
+        .subcommand(SubCommand::with_name("thelio-io"))
+        .get_matches();
 
-    let usage = "subcommands:\n  schedule\n  unschedule\n  thelio-io";
-    match env::args().nth(1) {
-        Some(arg) => match arg.as_str() {
-            "schedule" => {
-                let (digest, _changelog) = match download(transition_kind) {
-                    Ok(ok) => ok,
-                    Err(err) => return Err(format!("failed to download: {}", err))
-                };
+    match matches.subcommand() {
+        ("schedule", Some(sub_m)) => {
+            let transition_kind = if sub_m.is_present("open") {
+                TransitionKind::Open
+            } else if matches.is_present("proprietary") {
+                TransitionKind::Proprietary
+            } else {
+                TransitionKind::Automatic
+            };
 
-                match schedule(&digest, &efi_dir, transition_kind) {
-                    Ok(()) => Ok(()),
-                    Err(err) => Err(format!("failed to schedule: {}", err))
-                }
-            },
-            "unschedule" => {
-                match unschedule(&efi_dir) {
-                    Ok(()) => Ok(()),
-                    Err(err) => Err(format!("failed to unschedule: {}", err))
-                }
-            },
-            "thelio-io" => {
-                let (digest, _revision) = match thelio_io_download() {
-                    Ok(ok) => ok,
-                    Err(err) => return Err(format!("failed to download: {}", err))
-                };
+            let (digest, _changelog) = match download(transition_kind) {
+                Ok(ok) => ok,
+                Err(err) => return Err(format!("failed to download: {}", err))
+            };
 
-                match thelio_io_update(&digest) {
-                    Ok(()) => Ok(()),
-                    Err(err) => Err(format!("failed to update: {}", err))
-                }
-            },
-            other => Err(format!("invalid subcommand {} provided\n{}", other, usage)),
-        },
-        None => Err(format!("no subcommand provided\n{}", usage))
+            match schedule(&digest, &efi_dir, transition_kind) {
+                Ok(()) => Ok(()),
+                Err(err) => Err(format!("failed to schedule: {}", err))
+            }
+        }
+        ("unschedule", Some(_)) => {
+            match unschedule(&efi_dir) {
+                Ok(()) => Ok(()),
+                Err(err) => Err(format!("failed to unschedule: {}", err))
+            }
+        }
+        ("thelio-io", Some(_)) => {
+            let (digest, _revision) = match thelio_io_download() {
+                Ok(ok) => ok,
+                Err(err) => return Err(format!("failed to download: {}", err))
+            };
+
+            match thelio_io_update(&digest) {
+                Ok(()) => Ok(()),
+                Err(err) => Err(format!("failed to update: {}", err))
+            }
+        }
+        _ => unreachable!()
     }
 }
 
