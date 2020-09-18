@@ -22,10 +22,16 @@ fn inner() -> Result<(), String> {
         TransitionKind::Proprietary
     ] {
         println!("{:?}", transition_kind);
-        let (transition_model, transition_ec) = transition_kind.transition(&bios_model, variant, &ec_project);
-        println!("  Model: {}", transition_model);
-        println!("  Project: {}", transition_ec);
-        println!("  Firmware ID: {}", generate_firmware_id(&transition_model, &transition_ec));
+        match transition_kind.transition(&bios_model, variant, &ec_project) {
+            Ok((transition_model, transition_ec)) => {
+                println!("  Model: {}", transition_model);
+                println!("  Project: {}", transition_ec);
+                println!("  Firmware ID: {}", generate_firmware_id(&transition_model, &transition_ec));
+            },
+            Err(err) => {
+                println!("  Error: {}", err);
+            }
+        }
     }
 
     Ok(())

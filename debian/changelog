@@ -1,3 +1,9 @@
+system76-firmware (1.0.17) focal; urgency=medium
+
+  * Fallback when passed transition arguments on unsupported model
+
+ -- Jeremy Soller <jeremy@system76.com>  Fri, 18 Sep 2020 10:05:32 -0600
+
 system76-firmware (1.0.16) focal; urgency=medium
 
   * Support for transitioning to open firmware
