@@ -6,7 +6,7 @@ use std::os::unix::io::AsRawFd;
 use std::path::Path;
 use uuid::Uuid;
 
-use err_str;
+use crate::err_str;
 
 #[repr(packed)]
 struct PackedResponse(

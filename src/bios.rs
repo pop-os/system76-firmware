@@ -1,4 +1,4 @@
-use util;
+use crate::util;
 
 pub fn bios() -> Result<(String, String), String> {
     let bios_model = match util::read_string("/sys/class/dmi/id/product_version") {

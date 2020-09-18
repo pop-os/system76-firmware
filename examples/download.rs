@@ -1,6 +1,3 @@
-extern crate buildchain;
-extern crate system76_firmware;
-
 use buildchain::{Downloader, Manifest};
 use system76_firmware::{config, download};
 

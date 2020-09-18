@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
-use {config, download, err_str};
+use crate::{config, download, err_str};
 
 fn read_file<P: AsRef<Path>>(path: P) -> io::Result<String> {
     fs::read_to_string(path).map(|x| x.trim().to_string())

@@ -1,8 +1,8 @@
 use std::{fs, process};
 use std::path::Path;
 
-use mount;
-use util;
+use crate::mount;
+use crate::util;
 
 pub fn set_next_boot(efi_dir: &str) -> Result<(), String> {
     let mounts = match mount::Mount::all() {

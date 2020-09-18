@@ -3,7 +3,7 @@ use std::fs::{self, File};
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 
-use err_str;
+use crate::err_str;
 
 pub struct Cache {
     path: PathBuf,
