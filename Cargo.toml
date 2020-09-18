@@ -13,6 +13,7 @@ path = "src/bin/cli.rs"
 
 [dependencies]
 buildchain = "0.4.11"
+clap = "2.33.3"
 ecflash = { git = "https://github.com/system76/ecflash.git", branch = "stable" }
 libc = "0.2.77"
 plain = "0.2.3"

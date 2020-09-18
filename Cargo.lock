@@ -1522,6 +1522,7 @@ name = "system76-firmware"
 version = "1.0.16"
 dependencies = [
  "buildchain",
+ "clap",
  "ecflash",
  "err-derive",
  "libc",
