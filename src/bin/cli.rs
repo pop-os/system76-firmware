@@ -27,7 +27,7 @@ fn tool() -> Result<(), String> {
         .subcommand(SubCommand::with_name("schedule")
                     .arg(Arg::with_name("open")
                          .long("open"))
-                    .arg(Arg::with_name("--proprietary")
+                    .arg(Arg::with_name("proprietary")
                          .long("proprietary")
                          .conflicts_with("open")))
         .subcommand(SubCommand::with_name("unschedule"))
@@ -38,7 +38,7 @@ fn tool() -> Result<(), String> {
         ("schedule", Some(sub_m)) => {
             let transition_kind = if sub_m.is_present("open") {
                 TransitionKind::Open
-            } else if matches.is_present("proprietary") {
+            } else if sub_m.is_present("proprietary") {
                 TransitionKind::Proprietary
             } else {
                 TransitionKind::Automatic

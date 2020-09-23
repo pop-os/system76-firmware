@@ -1,3 +1,9 @@
+system76-firmware (1.0.18) focal; urgency=medium
+
+  * Fix CLI argument parsing of --proprietary
+
+ -- Jeremy Soller <jeremy@system76.com>  Wed, 23 Sep 2020 11:25:40 -0600
+
 system76-firmware (1.0.17) focal; urgency=medium
 
   * Fallback when passed transition arguments on unsupported model
