@@ -21,17 +21,23 @@ fn tool() -> Result<(), String> {
     };
 
     let matches = App::new("system76-firmware-cli")
+        .about("Download and install updates of System76 firmware")
         .setting(AppSettings::SubcommandRequired)
         .setting(AppSettings::DisableVersion)
         .setting(AppSettings::VersionlessSubcommands)
         .subcommand(SubCommand::with_name("schedule")
+                    .about("Schedule installation of firmware for next boot")
                     .arg(Arg::with_name("open")
+                         .help("Schedule install of open firmware")
                          .long("open"))
                     .arg(Arg::with_name("proprietary")
+                         .help("Schedule install of proprietary firmware")
                          .long("proprietary")
                          .conflicts_with("open")))
-        .subcommand(SubCommand::with_name("unschedule"))
-        .subcommand(SubCommand::with_name("thelio-io"))
+        .subcommand(SubCommand::with_name("unschedule")
+                    .about("Cancel scheduled firmware installation"))
+        .subcommand(SubCommand::with_name("thelio-io")
+                    .about("Update Thelio IO firmware"))
         .get_matches();
 
     match matches.subcommand() {
