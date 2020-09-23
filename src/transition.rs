@@ -75,9 +75,13 @@ impl TransitionKind {
                     project
                 };
 
+                eprintln!("{:?} transition: {} -> {}", self, project, new_project);
+
                 return Ok((model.to_string(), new_project.to_string()));
             }
         }
+
+        eprintln!("{:?} transition: {} -> {}", self, project, project);
 
         // Fallback in case transition is not defined
         match self {
