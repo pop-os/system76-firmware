@@ -17,6 +17,7 @@ pub fn get_efi_mnt() -> Option<String> {
         [
             path::Path::new("/boot"),
             path::Path::new("/boot/efi"),
+            path::Path::new("/efi"),
         ].iter()
          .find(|x| x.join(efi).as_path().is_dir())
          .and_then(|x| x.to_str().map(String::from))
