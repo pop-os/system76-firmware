@@ -6,10 +6,10 @@ use std::{io, process, rc};
 use system76_firmware::*;
 use system76_firmware_daemon::*;
 
-fn bios_vendor() -> Result<String, String> {
-    match util::read_string("/sys/class/dmi/id/bios_vendor") {
+fn dmi_vendor() -> Result<String, String> {
+    match util::read_string("/sys/class/dmi/id/sys_vendor") {
         Ok(ok) => Ok(ok.trim().to_string()),
-        Err(err) => Err(format!("failed to read BIOS vendor: {}", err)),
+        Err(err) => Err(format!("failed to read DMI system vendor: {}", err)),
     }
 }
 
@@ -31,7 +31,9 @@ fn daemon() -> Result<(), String> {
         None => return Err("EFI mount point not found".into())
     };
 
-    let in_whitelist = bios().ok().map_or(false, |(model, _)| model_is_whitelisted(&*model));
+    let in_whitelist =
+        dmi_vendor().ok().map_or(false, |vendor| vendor.contains("System76")) &&
+        bios().ok().map_or(false, |(model, _)| model_is_whitelisted(&*model));
 
     let transition_kind = TransitionKind::Automatic;
 
