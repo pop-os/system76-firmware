@@ -1,3 +1,9 @@
+system76-firmware (1.0.20) focal; urgency=medium
+
+  * Add galp5, lemp10, pang10, and thelio-mira-r1
+
+ -- Jeremy Soller <jeremy@system76.com>  Tue, 10 Nov 2020 20:13:55 -0700
+
 system76-firmware (1.0.19) focal; urgency=medium
 
   * Update ectool to ensure locked EC access
