@@ -1,3 +1,9 @@
+system76-firmware (1.0.21) focal; urgency=medium
+
+  * Add darp7
+
+ -- Jeremy Soller <jeremy@system76.com>  Mon, 28 Dec 2020 09:44:26 -0700
+
 system76-firmware (1.0.20) focal; urgency=medium
 
   * Add galp5, lemp10, pang10, and thelio-mira-r1
