@@ -1,3 +1,9 @@
+system76-firmware (1.0.22) focal; urgency=medium
+
+  * Add thelio-major-b3
+
+ -- Jeremy Soller <jeremy@system76.com>  Tue, 02 Feb 2021 09:21:02 -0700
+
 system76-firmware (1.0.21) focal; urgency=medium
 
   * Add darp7
