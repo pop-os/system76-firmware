@@ -1,3 +1,9 @@
+system76-firmware (1.0.23) focal; urgency=medium
+
+  * Update Rust to 1.47.0
+
+ -- Jeremy Soller <jeremy@system76.com>  Fri, 05 Feb 2021 08:18:04 -0700
+
 system76-firmware (1.0.22) focal; urgency=medium
 
   * Add thelio-major-b3
