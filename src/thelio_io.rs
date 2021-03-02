@@ -161,7 +161,10 @@ pub fn thelio_io_download() -> Result<(String, String), String> {
         Some(config::CERT)
     )?;
 
-    let tail = dl.tail()?;
+    let tail = {
+        let path = Path::new(config::CACHE).join("tail");
+        crate::cached_block(&path, crate::SECONDS_IN_DAY, || dl.tail())?
+    };
 
     let cache = download::Cache::new(config::CACHE, Some(dl))?;
 
