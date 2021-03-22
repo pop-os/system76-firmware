@@ -3,10 +3,9 @@ Section: admin
 Priority: optional
 Maintainer: Jeremy Soller <jeremy@system76.com>
 Build-Depends:
-  debhelper (>=9),
+  debhelper (>=9.20160709),
   ca-certificates,
   cargo,
-  dh-systemd,
   libdbus-1-dev,
   liblzma-dev,
   libssl-dev,
