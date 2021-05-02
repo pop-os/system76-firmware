@@ -1,3 +1,4 @@
+use anyhow::Context;
 use buildchain::{Downloader, Manifest};
 use serde::{Deserialize, Serialize};
 use std::{fs, io, process, thread, time};
@@ -153,6 +154,17 @@ impl ThelioIo {
 }
 
 pub fn thelio_io_download() -> Result<(String, String), String> {
+    let tail_cache = Path::new(config::CACHE).join("tail");
+
+    crate::util::retry(
+        || thelio_io_download_(&tail_cache),
+        || fs::remove_file(&tail_cache)
+            .context("failed to remove thelio I/O tail cache")
+            .map_err(err_str)
+    )
+}
+
+fn thelio_io_download_(tail_cache: &Path) -> Result<(String, String), String> {
     let dl = Downloader::new(
         config::KEY,
         config::URL,
@@ -161,11 +173,8 @@ pub fn thelio_io_download() -> Result<(String, String), String> {
         Some(config::CERT)
     )?;
 
-    let tail = {
-        let path = Path::new(config::CACHE).join("tail");
-        crate::cached_block(&path, crate::SECONDS_IN_DAY, || dl.tail())?
-    };
-
+    let fetch_tail = || dl.tail().map_err(|why| anyhow!(why));
+    let tail = crate::cached_block(&tail_cache, fetch_tail).map_err(err_str)?;
     let cache = download::Cache::new(config::CACHE, Some(dl))?;
 
     eprintln!("downloading manifest.json");
