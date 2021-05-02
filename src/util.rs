@@ -86,3 +86,22 @@ pub fn read_string<P: AsRef<path::Path>>(p: P) -> io::Result<String> {
 pub fn sha256(input: &[u8]) -> String {
     format!("{:x}", Sha256::digest(input))
 }
+
+pub fn retry<T, E>(action: impl Fn() -> Result<T, E>, cleanup: impl Fn() -> Result<(), E>) -> Result<T, E> {
+    let mut tries = 0;
+
+    loop {
+        let result = action();
+
+        if result.is_err() {
+            cleanup()?;
+
+            if tries < 3 {
+                tries += 1;
+                continue
+            }
+        }
+
+        return result;
+    }
+}
