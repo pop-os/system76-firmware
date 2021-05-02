@@ -8,11 +8,12 @@ authors = [
 edition = "2018"
 
 [dependencies]
-dbus = "0.8.4"
-enum_derive = "0.1.7"
-err-derive = "0.2.4"
-libc = "0.2.77"
-shrinkwraprs = "0.3.0"
+dbus = "0.9"
+enum_derive = "0.1"
+thiserror = "1.0"
+libc = "0.2"
+shrinkwraprs = "0.3"
 system76-firmware = { path = "../" }
-serde = { version = "1.0.116", features = ["derive"] }
-serde_json = "1.0.57"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+dbus-crossroads = "0.3.0"

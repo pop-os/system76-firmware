@@ -1,7 +1,6 @@
-use dbus::tree::{Factory, MethodErr};
-use dbus::ffidisp::{Connection, NameFlag};
-use std::collections::HashMap;
-use std::{io, process, rc};
+use dbus::blocking::Connection;
+use dbus_crossroads::{Crossroads, Context, MethodErr};
+use std::{io, process};
 
 use system76_firmware::*;
 use system76_firmware_daemon::*;
@@ -26,234 +25,210 @@ fn daemon() -> Result<(), String> {
         ));
     }
 
-    let efi_dir = match util::get_efi_mnt() {
-        Some(x) => rc::Rc::new(x),
-        None => return Err("EFI mount point not found".into())
+    /// State shared across DBus calls
+    struct State {
+        efi_dir: String,
+        in_whitelist: bool,
+        transition_kind: TransitionKind
+    }
+
+    let state = State {
+        efi_dir: match util::get_efi_mnt() {
+            Some(x) => x,
+            None => return Err("EFI mount point not found".into())
+        },
+
+        in_whitelist:
+            dmi_vendor().ok().map_or(false, |vendor| vendor.contains("System76")) &&
+            bios().ok().map_or(false, |(model, _)| model_is_whitelisted(&*model)),
+
+        transition_kind: TransitionKind::Automatic
     };
 
-    let in_whitelist =
-        dmi_vendor().ok().map_or(false, |vendor| vendor.contains("System76")) &&
-        bios().ok().map_or(false, |(model, _)| model_is_whitelisted(&*model));
-
-    let transition_kind = TransitionKind::Automatic;
-
     let c = Connection::new_system().map_err(err_str)?;
-    c.register_name(DBUS_DEST, NameFlag::ReplaceExisting as u32)
-        .map_err(err_str)?;
 
-    let f = Factory::new_fn::<()>();
+    c.request_name(DBUS_DEST, false, true, false).map_err(err_str)?;
 
-    let tree = f.tree(()).add(
-        f.object_path(DBUS_PATH, ()).introspectable().add(
-            f.interface(DBUS_DEST, ())
-                .add_m(
-                    f.method(METHOD_BIOS, (), move |m| {
-                        eprintln!("Bios");
-                        if !in_whitelist {
-                            return Err(MethodErr::failed(&"product is not in whitelist"));
-                        }
+    let mut cr = Crossroads::new();
 
-                        match bios() {
-                            Ok((bios_model, bios_version)) => {
-                                let mret = m.msg.method_return().append2(bios_model, bios_version);
-                                Ok(vec![mret])
-                            }
-                            Err(err) => {
-                                eprintln!("{}", err);
-                                Err(MethodErr::failed(&err))
-                            }
-                        }
-                    })
-                    .outarg::<&str, _>("model")
-                    .outarg::<&str, _>("version"),
-                )
-                .add_m(
-                    f.method(METHOD_EC, (), move |m| {
-                        let primary = m.msg.read1()?;
-                        eprintln!("EmbeddedController({})", primary);
-                        if !in_whitelist {
-                            return Err(MethodErr::failed(&"product is not in whitelist"));
-                        }
-                        match ec(primary) {
-                            Ok((ec_project, ec_version)) => {
-                                let mret = m.msg.method_return().append2(ec_project, ec_version);
-                                Ok(vec![mret])
-                            }
-                            Err(err) => {
-                                eprintln!("{}", err);
-                                Err(MethodErr::failed(&err))
-                            }
-                        }
-                    })
-                    .inarg::<bool, _>("primary")
-                    .outarg::<&str, _>("project")
-                    .outarg::<&str, _>("version"),
-                )
-                .add_m(
-                    f.method(METHOD_ME, (), move |m| {
-                        eprintln!("ManagementEngine");
-                        if !in_whitelist {
-                            return Err(MethodErr::failed(&"product is not in whitelist"));
-                        }
-                        match me() {
-                            Ok(Some(me_version)) => {
-                                let mret = m.msg.method_return().append2(true, me_version);
-                                Ok(vec![mret])
-                            }
-                            Ok(None) => {
-                                let mret = m.msg.method_return().append2(false, "");
-                                Ok(vec![mret])
-                            }
-                            Err(err) => {
-                                eprintln!("{}", err);
-                                Err(MethodErr::failed(&err))
-                            }
-                        }
-                    })
-                    .outarg::<bool, _>("enabled")
-                    .outarg::<&str, _>("version"),
-                )
-                .add_m(
-                    f.method(METHOD_FIRMWARE_ID, (), move |m| {
-                        eprintln!("FirmwareId");
-                        if !in_whitelist {
-                            return Err(MethodErr::failed(&"product is not in whitelist"));
-                        }
-                        match firmware_id(transition_kind) {
-                            Ok(id) => {
-                                let mret = m.msg.method_return().append1(id);
-                                Ok(vec![mret])
-                            }
-                            Err(err) => {
-                                eprintln!("{}", err);
-                                Err(MethodErr::failed(&err))
-                            }
-                        }
-                    })
-                    .outarg::<&str, _>("id"),
-                )
-                .add_m(
-                    f.method(METHOD_DOWNLOAD, (), move |m| {
-                        eprintln!("Download");
-                        if !in_whitelist {
-                            return Err(MethodErr::failed(&"product is not in whitelist"));
-                        }
-                        match download(transition_kind) {
-                            Ok((digest, changelog)) => {
-                                let mret = m.msg.method_return().append2(digest, changelog);
-                                Ok(vec![mret])
-                            }
-                            Err(err) => {
-                                eprintln!("{}", err);
-                                Err(MethodErr::failed(&err))
-                            }
-                        }
-                    })
-                    .outarg::<&str, _>("digest")
-                    .outarg::<&str, _>("changelog"),
-                )
-                .add_m(
-                    f.method(METHOD_SCHEDULE, (), {
-                        let efi_dir = rc::Rc::clone(&efi_dir);
-                        move |m| {
-                            let digest = m.msg.read1()?;
-                            eprintln!("Schedule({})", digest);
-                            if !in_whitelist {
-                                return Err(MethodErr::failed(&"product is not in whitelist"));
-                            }
-                            match schedule(digest, &efi_dir, transition_kind) {
-                                Ok(()) => {
-                                    let mret = m.msg.method_return();
-                                    Ok(vec![mret])
-                                }
-                                Err(err) => {
-                                    eprintln!("{}", err);
-                                    Err(MethodErr::failed(&err))
-                                }
-                            }
-                        }
-                    })
-                    .inarg::<&str, _>("digest"),
-                )
-                .add_m(f.method(METHOD_UNSCHEDULE, (), {
-                    let efi_dir = rc::Rc::clone(&efi_dir);
-                    move |m| {
-                        eprintln!("Unschedule");
-                        if !in_whitelist {
-                            return Err(MethodErr::failed(&"product is not in whitelist"));
-                        }
-                        match unschedule(&efi_dir) {
-                            Ok(()) => {
-                                let mret = m.msg.method_return();
-                                Ok(vec![mret])
-                            }
-                            Err(err) => {
-                                eprintln!("{}", err);
-                                Err(MethodErr::failed(&err))
-                            }
-                        }
+    let iface_token = cr.register(DBUS_IFACE, |b| {
+        b.method(
+            METHOD_BIOS,
+            (),
+            ("model", "version"),
+            move |_ctx: &mut Context, state: &mut State, _inputs: ()| {
+                eprintln!("Bios");
+                if !state.in_whitelist {
+                    return Err(MethodErr::failed(&"product is not in whitelist"));
+                }
+
+                bios().map_err(|err| {
+                    eprintln!("{}", err);
+                    MethodErr::failed(&err)
+                })
+            }
+        );
+
+        b.method(
+            METHOD_EC,
+            ("primary",),
+            ("project", "version"),
+            |_ctx: &mut Context, state: &mut State, (primary,): (bool,)| {
+                eprintln!("EmbeddedController({})", primary);
+                if !state.in_whitelist {
+                    return Err(MethodErr::failed(&"product is not in whitelist"));
+                }
+
+                ec(primary).map_err(|err| {
+                    eprintln!("{}", err);
+                    MethodErr::failed(&err)
+                })
+            }
+        );
+
+        b.method(
+            METHOD_ME,
+            (),
+            ("enabled", "version"),
+            |_ctx: &mut Context, state: &mut State, _inputs: ()| {
+                eprintln!("ManagementEngine");
+                if !state.in_whitelist {
+                    return Err(MethodErr::failed(&"product is not in whitelist"));
+                }
+
+                match me() {
+                    Ok(Some(me_version)) => {
+                        Ok((true, me_version))
                     }
-                }))
-                .add_m(
-                    f.method(METHOD_THELIO_IO_DOWNLOAD, (), move |m| {
-                        eprintln!("ThelioIoDownload");
-                        match thelio_io_download() {
-                            Ok((digest, revision)) => {
-                                let mret = m.msg.method_return().append2(digest, revision);
-                                Ok(vec![mret])
-                            }
-                            Err(err) => {
-                                eprintln!("{}", err);
-                                Err(MethodErr::failed(&err))
-                            }
-                        }
-                    })
-                    .outarg::<&str, _>("digest")
-                    .outarg::<&str, _>("revision"),
-                )
-                .add_m(
-                    f.method(METHOD_THELIO_IO_LIST, (), move |m| {
-                        eprintln!("ThelioIoList");
-                        match thelio_io_list() {
-                            Ok(list) => {
-                                let mret = m.msg.method_return().append1(list);
-                                Ok(vec![mret])
-                            }
-                            Err(err) => {
-                                eprintln!("{}", err);
-                                Err(MethodErr::failed(&err))
-                            }
-                        }
-                    })
-                    .outarg::<HashMap<String, String>, _>("list"),
-                )
-                .add_m(
-                    f.method(METHOD_THELIO_IO_UPDATE, (), move |m| {
-                        let digest = m.msg.read1()?;
-                        eprintln!("ThelioIoUpdate({})", digest);
-                        match thelio_io_update(digest) {
-                            Ok(()) => {
-                                let mret = m.msg.method_return();
-                                Ok(vec![mret])
-                            }
-                            Err(err) => {
-                                eprintln!("{}", err);
-                                Err(MethodErr::failed(&err))
-                            }
-                        }
-                    })
-                    .inarg::<&str, _>("digest"),
-                ),
-        ),
-    );
+                    Ok(None) => {
+                        Ok((false, String::new()))
+                    }
+                    Err(err) => {
+                        eprintln!("{}", err);
+                        Err(MethodErr::failed(&err))
+                    }
+                }
+            }
+        );
 
-    tree.set_registered(&c, true).map_err(err_str)?;
+        b.method(
+            METHOD_FIRMWARE_ID,
+            (),
+            ("id",),
+            |_ctx: &mut Context, state: &mut State, _inputs: ()| {
+                eprintln!("FirmwareId");
+                if !state.in_whitelist {
+                    return Err(MethodErr::failed(&"product is not in whitelist"));
+                }
 
-    c.add_handler(tree);
+                firmware_id(state.transition_kind)
+                    .map(|v| (v,))
+                    .map_err(|err| {
+                        eprintln!("{}", err);
+                        MethodErr::failed(&err)
+                    })
+            }
+        );
 
-    loop {
-        c.incoming(1000).next();
-    }
+        b.method(
+            METHOD_DOWNLOAD,
+            (),
+            ("digest", "changelog"),
+            |_ctx: &mut Context, state: &mut State, _inputs: ()| {
+                eprintln!("Download");
+                if !state.in_whitelist {
+                    return Err(MethodErr::failed(&"product is not in whitelist"));
+                }
+
+                download(state.transition_kind).map_err(|err| {
+                    eprintln!("{}", err);
+                    MethodErr::failed(&err)
+                })
+            }
+        );
+
+        b.method(
+            METHOD_SCHEDULE,
+            ("digest",),
+            (),
+            |_ctx: &mut Context, state: &mut State, (digest,): (String,)| {
+                eprintln!("Schedule({})", digest);
+                if !state.in_whitelist {
+                    return Err(MethodErr::failed(&"product is not in whitelist"));
+                }
+
+                schedule(&digest, &state.efi_dir, state.transition_kind).map_err(|err| {
+                    eprintln!("{}", err);
+                    MethodErr::failed(&err)
+                })
+            }
+        );
+
+        b.method(
+            METHOD_UNSCHEDULE,
+            (),
+            (),
+            |_ctx: &mut Context, state: &mut State, _inputs: ()| {
+                eprintln!("Unschedule");
+                if !state.in_whitelist {
+                    return Err(MethodErr::failed(&"product is not in whitelist"));
+                }
+
+                unschedule(&state.efi_dir).map_err(|err| {
+                    eprintln!("{}", err);
+                    MethodErr::failed(&err)
+                })
+            }
+        );
+
+        b.method(
+            METHOD_THELIO_IO_DOWNLOAD,
+            (),
+            ("digest", "revision"),
+            |_ctx: &mut Context, _state: &mut State, _inputs: ()| {
+                eprintln!("ThelioIoDownload");
+
+                thelio_io_download().map_err(|err| {
+                    eprintln!("{}", err);
+                    MethodErr::failed(&err)
+                })
+            }
+        );
+
+        b.method(
+            METHOD_THELIO_IO_LIST,
+            (),
+            ("list",),
+            |_ctx: &mut Context, _state: &mut State, _inputs: ()| {
+                eprintln!("ThelioIoList");
+
+                thelio_io_list()
+                    .map(|v| (v,))
+                    .map_err(|err| {
+                        eprintln!("{}", err);
+                        MethodErr::failed(&err)
+                    })
+            }
+        );
+
+        b.method(
+            METHOD_THELIO_IO_UPDATE,
+            ("digest",),
+            (),
+            |_ctx: &mut Context, _state: &mut State, (digest,): (String,)| {
+                eprintln!("ThelioIoUpdate({})", digest);
+
+                thelio_io_update(&digest).map_err(|err| {
+                    eprintln!("{}", err);
+                    MethodErr::failed(&err)
+                })
+            }
+        );
+    });
+
+    cr.insert(DBUS_PATH, &[iface_token], state);
+
+    cr.serve(&c).map_err(err_str)
 }
 
 fn main() {

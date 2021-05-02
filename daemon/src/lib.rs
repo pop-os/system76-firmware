@@ -1,5 +1,5 @@
 #[macro_use]
-extern crate err_derive;
+extern crate thiserror;
 #[macro_use]
 extern crate serde;
 #[macro_use]
@@ -27,19 +27,19 @@ pub const METHOD_UNSCHEDULE: &str = "Unschedule";
 #[derive(Debug, Error)]
 pub enum Error {
     /// Received an unexpected arrangement of DBus arguments.
-    #[error(display = "argument mismatch in {} method", _0)]
-    ArgumentMismatch(&'static str, #[error(cause)] dbus::arg::TypeMismatchError),
+    #[error("argument mismatch in {} method", _0)]
+    ArgumentMismatch(&'static str, #[source] dbus::arg::TypeMismatchError),
     /// Failed to call one of the daemon's methods.
-    #[error(display = "calling {} method failed", _0)]
-    Call(&'static str, #[error(cause)] dbus::Error),
+    #[error("calling {} method failed", _0)]
+    Call(&'static str, #[source] dbus::Error),
     /// Failed to parse the changelog file received from the daemon.
-    #[error(display = "failed to parse changelog JSON: {}", _0)]
-    Changelog(Box<str>, #[error(cause)] serde_json::Error),
+    #[error("failed to parse changelog JSON: {}", _0)]
+    Changelog(Box<str>, #[source] serde_json::Error),
     /// Failed to establish a DBus connection to the system.
-    #[error(display = "unable to establish dbus connection")]
-    Connection(#[error(cause)] dbus::Error),
+    #[error("unable to establish dbus connection")]
+    Connection(#[source] dbus::Error),
     /// Failed to create a new method call.
-    #[error(display = "failed to create {} method call: {}", _0, _1)]
+    #[error("failed to create {} method call: {}", _0, _1)]
     NewMethodCall(&'static str, Box<str>),
 }
 
