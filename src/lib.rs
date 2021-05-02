@@ -170,7 +170,7 @@ pub fn download_firmware_id(firmware_id: &str) -> Result<(String, String), Strin
         Some(config::CERT)
     )?;
 
-    if !fs::metadata(config::CACHE).is_ok() {
+    if !Path::new(config::CACHE).is_dir() {
        eprintln!("creating cache directory {}", config::CACHE);
        fs::create_dir(config::CACHE).map_err(err_str)?;
     }
