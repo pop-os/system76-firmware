@@ -4,7 +4,7 @@ use std::path::Path;
 use crate::mount;
 use crate::util;
 
-pub fn set_next_boot(efi_dir: &str) -> Result<(), String> {
+pub fn set_next_boot(efi_dir: &str, modify_order: bool) -> Result<(), String> {
     let mounts = match mount::Mount::all() {
         Ok(ok) => ok,
         Err(err) => {
@@ -72,7 +72,7 @@ pub fn set_next_boot(efi_dir: &str) -> Result<(), String> {
         let mut command = process::Command::new("efibootmgr");
         command
             .arg("--quiet")
-            .arg("--create-only")
+            .arg(if modify_order { "--create" } else { "--create-only" })
             .arg("--bootnum").arg("1776")
             .arg("--disk").arg(disk_dev)
             .arg("--part").arg(efi_part)
