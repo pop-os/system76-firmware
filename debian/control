@@ -16,6 +16,7 @@ Homepage: https://github.com/pop-os/system76-firmware
 Package: system76-firmware
 Architecture: amd64
 Depends:
+  efibootmgr,
   ${misc:Depends},
   ${shlib:Depends}
 Description: System76 Firmware CLI
