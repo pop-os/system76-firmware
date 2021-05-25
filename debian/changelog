@@ -1,3 +1,9 @@
+system76-firmware (1.0.26) focal; urgency=medium
+
+  * Add meer6
+
+ -- Jacob Kauffmann <jacob@system76.com>  Tue, 25 May 2021 03:42:00 -0600
+
 system76-firmware (1.0.25) focal; urgency=medium
 
   * Fix booting to firmware updater on thelio-mira-r1
