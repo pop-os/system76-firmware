@@ -1,3 +1,9 @@
+system76-firmware (1.0.28) hirsute; urgency=medium
+
+  * Enable automatic transition to Open EC for darp6
+
+ -- Ian Douglas Scott <idscott@system76.com>  Mon, 14 Jun 2021 14:15:23 -0700
+
 system76-firmware (1.0.27) hirsute; urgency=medium
 
   * Add thelio-mira-b1
