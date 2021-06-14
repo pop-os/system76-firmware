@@ -1,3 +1,9 @@
+system76-firmware (1.0.27) hirsute; urgency=medium
+
+  * Add thelio-mira-b1
+
+ -- Levi Portenier <levi@system76.com>  Mon, 14 Jun 2021 12:56:43 -0600
+
 system76-firmware (1.0.26) focal; urgency=medium
 
   * Add meer6
