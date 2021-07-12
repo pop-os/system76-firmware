@@ -1,3 +1,9 @@
+system76-firmware (1.0.28) focal; urgency=medium
+
+  * Add gaze16-3050, gaze16-3060
+
+ -- Tim Crawford <tcrawford@system76.com>  Fri, 09 Jul 2021 10:48:51 -0600
+
 system76-firmware (1.0.27) hirsute; urgency=medium
 
   * Add thelio-mira-b1
