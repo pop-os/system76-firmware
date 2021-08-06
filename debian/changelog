@@ -1,3 +1,9 @@
+system76-firmware (1.0.29) focal; urgency=medium
+
+  * Add pang11
+
+ -- Tim Crawford <tcrawford@system76.com>  Fri, 06 Aug 2021 07:24:44 -0600
+
 system76-firmware (1.0.28) focal; urgency=medium
 
   * Add gaze16-3050, gaze16-3060
