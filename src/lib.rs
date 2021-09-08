@@ -28,6 +28,8 @@ pub use crate::thelio_io::{
 };
 pub use crate::transition::TransitionKind;
 
+const SECONDS_IN_DAY: u64 = 60 * 60 * 24;
+
 const MODEL_WHITELIST: &[&str] = &[
     "addw1",
     "addw2",
@@ -227,7 +229,7 @@ fn download_firmware_id_(tail_cache: &Path, firmware_id: &str) -> Result<(String
 
 /// Retrieves a `Block` from the cached path if it exists and the modified time is recent.
 ///
-/// - If the modified time is older than `stale_after` seconds, the cache will be updated.
+/// - If the modified time is older than one day, the cache will be updated.
 /// - The most recent `Block` from cache will be returned after the cache is updated.
 /// - If the cache does not require an update, it will be returned after being deserialized.
 fn cached_block<F: FnMut() -> anyhow::Result<Block>>(
@@ -235,6 +237,15 @@ fn cached_block<F: FnMut() -> anyhow::Result<Block>>(
     mut func: F
 ) -> anyhow::Result<Block>  {
     let result: anyhow::Result<Block> = (|| {
+        let modified = timestamp::modified_since_unix(path)
+            .context("could not get modified time")?;
+
+        let now = timestamp::current();
+
+        if timestamp::exceeded(modified, now, SECONDS_IN_DAY) {
+            return Err(anyhow::anyhow!("timestamp exceeded"));
+        }
+
         let file = fs::File::open(&path)
             .context("failed to read cached block")?;
 
@@ -337,3 +348,29 @@ pub fn unschedule(efi_dir: &str) -> Result<(), String> {
 
     Ok(())
 }
+
+mod timestamp {
+    use std::{io, path::Path, time::{Duration, SystemTime}};
+
+    /// Convenience function for fetching the current time in seconds since the UNIX Epoch.
+    pub fn current() -> u64 {
+        seconds_since_unix(SystemTime::now())
+    }
+
+    pub fn modified_since_unix(path: &Path) -> io::Result<u64> {
+        path.metadata()
+            .and_then(|md| md.modified())
+            .map(seconds_since_unix)
+    }
+
+    pub fn seconds_since_unix(time: SystemTime) -> u64 {
+        time.duration_since(SystemTime::UNIX_EPOCH)
+            .as_ref()
+            .map(Duration::as_secs)
+            .unwrap_or(0)
+    }
+
+    pub fn exceeded(last: u64, current: u64, limit: u64) -> bool {
+        current == 0 || last > current || current - last > limit
+    }
+} 
