@@ -77,6 +77,7 @@ const MODEL_WHITELIST: &[&str] = &[
     "oryp5",
     "oryp6",
     "oryp7",
+    "oryp8",
     "pang10",
     "pang11",
     "serw9",
