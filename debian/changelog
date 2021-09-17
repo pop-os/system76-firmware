@@ -1,3 +1,9 @@
+system76-firmware (1.0.31) focal; urgency=medium
+
+  * Specify tar version 0.4.35 to work around regression
+
+ -- Jacob Kauffmann <jacob@system76.com>  Tue, 17 Sep 2021 10:26:00 -0600
+
 system76-firmware (1.0.30) focal; urgency=medium
 
   * Fix updating tail cache
