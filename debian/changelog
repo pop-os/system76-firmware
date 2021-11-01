@@ -1,3 +1,9 @@
+system76-firmware (1.0.32) focal; urgency=medium
+
+  * Add gaze16-3060-b
+
+ -- Jeremy Soller <jeremy@system76.com>  Mon, 01 Nov 2021 11:34:07 -0600
+
 system76-firmware (1.0.31) focal; urgency=medium
 
   * Specify tar version 0.4.35 to work around regression
