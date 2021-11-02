@@ -59,6 +59,7 @@ const MODEL_WHITELIST: &[&str] = &[
     "kudu3",
     "kudu4",
     "kudu5",
+    "kudu6",
     "lemu6",
     "lemu7",
     "lemu8",
