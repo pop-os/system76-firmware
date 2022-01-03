@@ -1,6 +1,30 @@
-use clap::{App, AppSettings, Arg};
+use clap::{AppSettings, Parser};
 use std::{io, process};
 use system76_firmware::*;
+
+#[derive(Parser)]
+#[clap(
+    name = "system76-firmware-cli",
+    about = "Download and install updates of System76 firmware",
+    setting = AppSettings::SubcommandRequired
+)]
+enum Args {
+    #[clap(about = "Schedule installation of firmware for next boot")]
+    Schedule {
+        #[clap(help = "Schedule install of open firmware", long = "open")]
+        open: bool,
+        #[clap(
+            help = "Schedule install of proprietary firmware",
+            long = "proprietary",
+            conflicts_with = "open"
+        )]
+        proprietary: bool,
+    },
+    #[clap(about = "Cancel scheduled firmware installation")]
+    Unschedule,
+    #[clap(about = "Update Thelio IO firmware")]
+    ThelioIo,
+}
 
 fn tool() -> Result<(), String> {
     if unsafe { libc::geteuid() } != 0 {
@@ -20,29 +44,11 @@ fn tool() -> Result<(), String> {
         None => return Err("EFI mount point not found".into())
     };
 
-    let matches = App::new("system76-firmware-cli")
-        .about("Download and install updates of System76 firmware")
-        .setting(AppSettings::SubcommandRequired)
-        .subcommand(App::new("schedule")
-                    .about("Schedule installation of firmware for next boot")
-                    .arg(Arg::new("open")
-                         .help("Schedule install of open firmware")
-                         .long("open"))
-                    .arg(Arg::new("proprietary")
-                         .help("Schedule install of proprietary firmware")
-                         .long("proprietary")
-                         .conflicts_with("open")))
-        .subcommand(App::new("unschedule")
-                    .about("Cancel scheduled firmware installation"))
-        .subcommand(App::new("thelio-io")
-                    .about("Update Thelio IO firmware"))
-        .get_matches();
-
-    match matches.subcommand() {
-        Some(("schedule", sub_m)) => {
-            let transition_kind = if sub_m.is_present("open") {
+    match Args::parse() {
+        Args::Schedule { open, proprietary } => {
+            let transition_kind = if open {
                 TransitionKind::Open
-            } else if sub_m.is_present("proprietary") {
+            } else if proprietary {
                 TransitionKind::Proprietary
             } else {
                 TransitionKind::Automatic
@@ -58,13 +64,13 @@ fn tool() -> Result<(), String> {
                 Err(err) => Err(format!("failed to schedule: {}", err))
             }
         }
-        Some(("unschedule", _)) => {
+        Args::Unschedule => {
             match unschedule(&efi_dir) {
                 Ok(()) => Ok(()),
                 Err(err) => Err(format!("failed to unschedule: {}", err))
             }
         }
-        Some(("thelio-io", _)) => {
+        Args::ThelioIo => {
             let (digest, _revision) = match thelio_io_download() {
                 Ok(ok) => ok,
                 Err(err) => return Err(format!("failed to download: {}", err))
@@ -75,7 +81,6 @@ fn tool() -> Result<(), String> {
                 Err(err) => Err(format!("failed to update: {}", err))
             }
         }
-        _ => unreachable!()
     }
 }
 
