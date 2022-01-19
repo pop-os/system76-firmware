@@ -13,8 +13,8 @@ pub fn set_next_boot(efi_dir: &str, modify_order: bool) -> Result<(), String> {
     };
 
     let efi_mount = match mounts.iter().find(|mount| {
-        if let Some(dest) = mount.dest.to_str() {
-            dest == efi_dir
+        if let (Some(source), Some(dest)) = (mount.source.to_str(), mount.dest.to_str()) {
+           source.starts_with('/') && dest == efi_dir
         } else {
             false
         }
