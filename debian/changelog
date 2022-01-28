@@ -1,3 +1,9 @@
+system76-firmware (1.0.33) focal; urgency=medium
+
+  * Add kudu6
+
+ -- Tim Crawford <tcrawford@system76.com>  Tue, 02 Nov 2021 10:12:45 -0600
+
 system76-firmware (1.0.32) focal; urgency=medium
 
   * Add gaze16-3060-b
