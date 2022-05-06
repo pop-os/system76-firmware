@@ -1,3 +1,9 @@
+system76-firmware (1.0.36) jammy; urgency=medium
+
+  * Add thelio-mira-b3
+
+ -- Levi Portenier <levi@system76.com>  Fri, 06 May 2022 16:11:18 -0600
+
 system76-firmware (1.0.35) jammy; urgency=medium
 
   * Add thelio-mira-b2
