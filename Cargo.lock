@@ -1566,7 +1566,7 @@ dependencies = [
 
 [[package]]
 name = "system76-firmware"
-version = "1.0.35"
+version = "1.0.36"
 dependencies = [
  "anyhow",
  "bincode",
