@@ -1,3 +1,9 @@
+system76-firmware (1.0.37) jammy; urgency=medium
+
+  * Add thelio-mira-r2
+
+ -- Daniel Sutton <daniel@system76.com>  Thu, 12 May 2022 13:34:15 -0600
+
 system76-firmware (1.0.36) jammy; urgency=medium
 
   * Add thelio-mira-b3
