@@ -1,3 +1,9 @@
+system76-firmware (1.0.37) jammy; urgency=medium
+
+  * Add gaze17
+
+ -- Tim Crawford <tcrawford@system76.com>  Thu, 19 May 2022 16:22:18 -0600
+
 system76-firmware (1.0.36) jammy; urgency=medium
 
   * Add thelio-mira-b3
