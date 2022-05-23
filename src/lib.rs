@@ -106,6 +106,7 @@ const MODEL_WHITELIST: &[&str] = &[
     "thelio-mira-b2",
     "thelio-mira-b3",
     "thelio-mira-r1",
+    "thelio-mira-r2",
     "thelio-r1",
     "thelio-r2",
 ];

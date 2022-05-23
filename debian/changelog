@@ -1,3 +1,9 @@
+system76-firmware (1.0.38) jammy; urgency=medium
+
+  * Add thelio-mira-r2
+
+ -- Jeremy Soller <jeremy@system76.com>  Mon, 23 May 2022 09:53:37 -0600
+
 system76-firmware (1.0.37) jammy; urgency=medium
 
   * Add gaze17
