@@ -337,8 +337,10 @@ pub fn schedule_firmware_id(digest: &str, efi_dir: &str, firmware_id: &str) -> R
         }
     }
 
-    // thelio-mira-r1 will not boot to firmware updater unless it is added to BootOrder
-    let modify_order = firmware_id.starts_with("thelio-mira-r1_");
+    // thelio-mira-r1/r2 will not boot to firmware updater unless it is added to BootOrder
+    let modify_order =
+        firmware_id.starts_with("thelio-mira-r1_") ||
+        firmware_id.starts_with("thelio-mira-r2_");
     boot::set_next_boot(efi_dir, modify_order)?;
 
     eprintln!("Firmware update scheduled. Reboot your machine to install.");
@@ -382,4 +384,4 @@ mod timestamp {
     pub fn exceeded(last: u64, current: u64, limit: u64) -> bool {
         current == 0 || last > current || current - last > limit
     }
-} 
+}
