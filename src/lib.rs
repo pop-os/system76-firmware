@@ -40,6 +40,7 @@ const MODEL_WHITELIST: &[&str] = &[
     "darp5",
     "darp6",
     "darp7",
+    "darp8",
     "galp2",
     "galp3",
     "galp3-b",
