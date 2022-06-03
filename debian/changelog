@@ -1,3 +1,10 @@
+system76-firmware (1.0.40) focal; urgency=medium
+
+  * Fix finding EFI device when mounted via systemd autofs
+  * Add darp8
+
+ -- Tim Crawford <tcrawford@system76.com>  Fri, 03 Jun 2022 13:17:57 -0600
+
 system76-firmware (1.0.39) jammy; urgency=medium
 
   * Modify BootOrder for thelio-mira-r2
