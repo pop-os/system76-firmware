@@ -1,3 +1,9 @@
+system76-firmware (1.0.40) focal; urgency=medium
+
+  * Add oryp9
+
+ -- Tim Crawford <tcrawford@system76.com>  Thu, 16 Jun 2022 16:01:53 -0600
+
 system76-firmware (1.0.39) jammy; urgency=medium
 
   * Modify BootOrder for thelio-mira-r2
