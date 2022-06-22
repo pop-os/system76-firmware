@@ -1,3 +1,9 @@
+system76-firmware (1.0.41) focal; urgency=medium
+
+  * Add lemp11 and oryp9
+
+ -- Jeremy Soller <jeremy@system76.com>  Wed, 22 Jun 2022 10:03:25 -0600
+
 system76-firmware (1.0.40) focal; urgency=medium
 
   * Fix finding EFI device when mounted via systemd autofs
