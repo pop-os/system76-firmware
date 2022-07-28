@@ -1,3 +1,9 @@
+system76-firmware (1.0.42) focal; urgency=medium
+
+  * Add galp6
+
+ -- Tim Crawford <tcrawford@system76.com>  Thu, 28 Jul 2022 09:00:53 -0600
+
 system76-firmware (1.0.41) focal; urgency=medium
 
   * Add lemp11 and oryp9
