@@ -194,10 +194,18 @@ pub struct Version {
     pub bios_me: bool,
     pub bios_set: bool,
     pub bios: Box<str>,
-    pub description: Option<Box<str>>,
+    pub description: Option<Description>,
     pub me_cr: bool,
     pub me_hap: bool,
     pub me: Option<Box<str>>,
+}
+
+/// Description of version changes, as either a string or array of strings.
+#[derive(Clone, Debug, Deserialize)]
+#[serde(untagged)]
+pub enum Description {
+    List(Vec<Box<str>>),
+    Simple(Box<str>),
 }
 
 /// Signature of the firmware that can be installed on the system.
