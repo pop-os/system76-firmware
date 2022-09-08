@@ -198,6 +198,7 @@ pub struct Version {
     pub me_cr: bool,
     pub me_hap: bool,
     pub me: Option<Box<str>>,
+    pub date: Option<Box<str>>,
 }
 
 /// Signature of the firmware that can be installed on the system.
