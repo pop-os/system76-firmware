@@ -1,3 +1,9 @@
+system76-firmware (1.0.45) jammy; urgency=medium
+
+  * Add thelio-mira-r3
+
+ -- Levi Portenier <levi@system76.com>  Wed, 14 Sep 2022 11:48:38 -0600
+
 system76-firmware (1.0.44) focal; urgency=medium
 
   * Add thelio-mega-r2
