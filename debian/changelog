@@ -1,3 +1,9 @@
+system76-firmware (1.0.50) jammy; urgency=medium
+
+  * Add pang12
+
+ -- Levi Portenier <levi@system76.com>  Fri, 06 Jan 2023 16:11:55 -0700
+
 system76-firmware (1.0.49) jammy; urgency=medium
 
   * Add thelio-mira-b4
