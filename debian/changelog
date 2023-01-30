@@ -1,3 +1,9 @@
+system76-firmware (1.0.50) jammy; urgency=medium
+
+  * Add pang12 EC version support
+
+ -- Jeremy Soller <jeremy@system76.com>  Mon, 30 Jan 2023 08:38:08 -0700
+
 system76-firmware (1.0.49) jammy; urgency=medium
 
   * Add thelio-mira-b4
