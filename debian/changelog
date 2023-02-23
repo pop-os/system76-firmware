@@ -1,3 +1,13 @@
+system76-firmware (1.0.50) focal; urgency=medium
+
+  * Add addw3
+  * Add bonw15
+  * Add gaze18
+  * Add oryp11
+  * Add serw13
+
+ -- Tim Crawford <tcrawford@system76.com>  Thu, 23 Feb 2023 10:08:11 -0700
+
 system76-firmware (1.0.50) jammy; urgency=medium
 
   * Add pang12 EC version support
