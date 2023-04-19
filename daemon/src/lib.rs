@@ -195,8 +195,8 @@ pub struct Version {
     pub bios_set: bool,
     pub bios: Box<str>,
     pub description: Box<str>,
-    pub me_cr: bool,
-    pub me_hap: bool,
+    pub me_cr: Option<bool>,
+    pub me_hap: Option<bool>,
     pub me: Option<Box<str>>,
     pub date: Box<str>,
 }
