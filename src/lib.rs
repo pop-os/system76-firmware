@@ -98,6 +98,7 @@ const MODEL_WHITELIST: &[&str] = &[
     "pang10",
     "pang11",
     "pang12",
+    "pang13",
     "serw9",
     "serw10",
     "serw11",

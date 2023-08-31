@@ -33,7 +33,7 @@ pub fn ec(primary: bool) -> Result<(String, String), String> {
         unsafe {
             // Handle specific model variations
             match (sys_vendor.as_str(), product_version.as_str()) {
-                ("System76", "pang12") => {
+                ("System76", "pang12" | "pang13") => {
                     let ec_io_path = Path::new("/sys/kernel/debug/ec/ec0/io");
                     if ! ec_io_path.exists() {
                         let status = Command::new("modprobe")
