@@ -1,3 +1,9 @@
+system76-firmware (1.0.54) jammy; urgency=medium
+
+  * Add thelio-spark-b1
+
+ -- Levi Portenier <levi@system76.com>  Wed, 20 Sep 2023 13:55:10 -0600
+
 system76-firmware (1.0.53) focal; urgency=medium
 
   * Add pang13
