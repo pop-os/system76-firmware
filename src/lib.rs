@@ -135,6 +135,7 @@ const MODEL_WHITELIST: &[&str] = &[
     "thelio-r1",
     "thelio-r2",
     "thelio-r3",
+    "thelio-spark-b1",
 ];
 
 pub fn model_is_whitelisted(model: &str) -> bool {
