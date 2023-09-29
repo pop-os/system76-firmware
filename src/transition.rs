@@ -30,13 +30,18 @@ impl Transition {
         Self::new_variant(model, 0, proprietary, liberate)
     }
 
-    const fn new_variant(model: &'static str, variant: u8, proprietary: &'static str, liberate: bool) -> Self {
+    const fn new_variant(
+        model: &'static str,
+        variant: u8,
+        proprietary: &'static str,
+        liberate: bool,
+    ) -> Self {
         Self {
             model,
             variant,
             open: "76ec",
             proprietary,
-            liberate
+            liberate,
         }
     }
 }
@@ -52,7 +57,12 @@ pub enum TransitionKind {
 }
 
 impl TransitionKind {
-    pub fn transition(self, model: &str, variant: u8, project: &str) -> Result<(String, String), String> {
+    pub fn transition(
+        self,
+        model: &str,
+        variant: u8,
+        project: &str,
+    ) -> Result<(String, String), String> {
         for transition in TRANSITIONS.iter() {
             if model == transition.model && variant == transition.variant {
                 let new_project = if project == transition.open {
@@ -63,11 +73,13 @@ impl TransitionKind {
                     }
                 } else if project == transition.proprietary {
                     match self {
-                        TransitionKind::Automatic => if transition.liberate {
-                            transition.open
-                        } else {
-                            transition.proprietary
-                        },
+                        TransitionKind::Automatic => {
+                            if transition.liberate {
+                                transition.open
+                            } else {
+                                transition.proprietary
+                            }
+                        }
                         TransitionKind::Open => transition.open,
                         TransitionKind::Proprietary => transition.proprietary,
                     }
@@ -85,14 +97,15 @@ impl TransitionKind {
 
         // Fallback in case transition is not defined
         match self {
-            TransitionKind::Open if project != "76ec" => {
-                Err(format!("Model '{}' is not supported by open firmware and EC at this time", model))
-            },
-            TransitionKind::Proprietary if project == "76ec" => {
-                Err(format!("Model '{}' is not supported by proprietary firmware and EC at this time", model))
-            },
+            TransitionKind::Open if project != "76ec" => Err(format!(
+                "Model '{}' is not supported by open firmware and EC at this time",
+                model
+            )),
+            TransitionKind::Proprietary if project == "76ec" => Err(format!(
+                "Model '{}' is not supported by proprietary firmware and EC at this time",
+                model
+            )),
             _ => Ok((model.to_string(), project.to_string())),
         }
-
     }
 }

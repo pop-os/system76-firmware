@@ -1,11 +1,5 @@
 use std::process;
-use system76_firmware::{
-    bios,
-    ec_or_none,
-    generate_firmware_id,
-    model_variant,
-    TransitionKind,
-};
+use system76_firmware::{bios, ec_or_none, generate_firmware_id, model_variant, TransitionKind};
 
 fn inner() -> Result<(), String> {
     let (bios_model, _bios_version) = bios()?;
@@ -19,15 +13,18 @@ fn inner() -> Result<(), String> {
     for transition_kind in &[
         TransitionKind::Automatic,
         TransitionKind::Open,
-        TransitionKind::Proprietary
+        TransitionKind::Proprietary,
     ] {
         println!("{:?}", transition_kind);
         match transition_kind.transition(&bios_model, variant, &ec_project) {
             Ok((transition_model, transition_ec)) => {
                 println!("  Model: {}", transition_model);
                 println!("  Project: {}", transition_ec);
-                println!("  Firmware ID: {}", generate_firmware_id(&transition_model, &transition_ec));
-            },
+                println!(
+                    "  Firmware ID: {}",
+                    generate_firmware_id(&transition_model, &transition_ec)
+                );
+            }
             Err(err) => {
                 println!("  Error: {}", err);
             }

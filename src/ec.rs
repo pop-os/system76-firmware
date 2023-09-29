@@ -36,12 +36,12 @@ pub fn ec(primary: bool) -> Result<(String, String), String> {
             match (sys_vendor.as_str(), product_version.as_str()) {
                 ("System76", "pang12" | "pang13") => {
                     let ec_io_path = Path::new("/sys/kernel/debug/ec/ec0/io");
-                    if ! ec_io_path.exists() {
+                    if !ec_io_path.exists() {
                         let status = Command::new("modprobe")
                             .arg("ec_sys")
                             .status()
                             .map_err(err_str)?;
-                        if ! status.success() {
+                        if !status.success() {
                             return Err(format!("failed to modprobe ec_sys: {}", status));
                         }
                     }
@@ -60,11 +60,10 @@ pub fn ec(primary: bool) -> Result<(String, String), String> {
                         product_version,
                         format!(
                             "20{:02}/{:02}/{:02}_{:02}:{:02}:{:02}",
-                            ymd[0], ymd[1], ymd[2],
-                            hms[0], hms[1], hms[2]
+                            ymd[0], ymd[1], ymd[2], hms[0], hms[1], hms[2]
                         ),
                     ));
-                },
+                }
                 _ => (),
             }
 
@@ -91,6 +90,6 @@ pub fn ec(primary: bool) -> Result<(String, String), String> {
 pub fn ec_or_none(primary: bool) -> (String, String) {
     match ec(primary) {
         Ok(ok) => ok,
-        Err(_err) => ("none".to_string(), "".to_string())
+        Err(_err) => ("none".to_string(), "".to_string()),
     }
 }

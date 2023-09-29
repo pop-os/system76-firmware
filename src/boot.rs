@@ -1,5 +1,5 @@
-use std::{fs, process};
 use std::path::Path;
+use std::{fs, process};
 
 use crate::mount;
 use crate::util;
@@ -14,7 +14,7 @@ pub fn set_next_boot(efi_dir: &str, modify_order: bool) -> Result<(), String> {
 
     let efi_mount = match mounts.iter().find(|mount| {
         if let (Some(source), Some(dest)) = (mount.source.to_str(), mount.dest.to_str()) {
-           source.starts_with('/') && dest == efi_dir
+            source.starts_with('/') && dest == efi_dir
         } else {
             false
         }
@@ -38,7 +38,11 @@ pub fn set_next_boot(efi_dir: &str, modify_order: bool) -> Result<(), String> {
     let efi_sys = match fs::canonicalize(&efi_sys_block) {
         Ok(ok) => ok,
         Err(err) => {
-            return Err(format!("failed to canonicalize {}: {}", efi_sys_block.display(), err));
+            return Err(format!(
+                "failed to canonicalize {}: {}",
+                efi_sys_block.display(),
+                err
+            ));
         }
     };
 
@@ -46,7 +50,11 @@ pub fn set_next_boot(efi_dir: &str, modify_order: bool) -> Result<(), String> {
     let efi_part = match util::read_string(&efi_sys_part) {
         Ok(ok) => ok.trim().to_string(),
         Err(err) => {
-            return Err(format!("failed to read {}: {}", efi_sys_part.display(), err));
+            return Err(format!(
+                "failed to read {}: {}",
+                efi_sys_part.display(),
+                err
+            ));
         }
     };
 
@@ -72,19 +80,30 @@ pub fn set_next_boot(efi_dir: &str, modify_order: bool) -> Result<(), String> {
         let mut command = process::Command::new("efibootmgr");
         command
             .arg("--quiet")
-            .arg(if modify_order { "--create" } else { "--create-only" })
-            .arg("--bootnum").arg("1776")
-            .arg("--disk").arg(disk_dev)
-            .arg("--part").arg(efi_part)
-            .arg("--loader").arg("\\system76-firmware-update\\boot.efi")
-            .arg("--label").arg("system76-firmware-update");
+            .arg(if modify_order {
+                "--create"
+            } else {
+                "--create-only"
+            })
+            .arg("--bootnum")
+            .arg("1776")
+            .arg("--disk")
+            .arg(disk_dev)
+            .arg("--part")
+            .arg(efi_part)
+            .arg("--loader")
+            .arg("\\system76-firmware-update\\boot.efi")
+            .arg("--label")
+            .arg("system76-firmware-update");
 
         eprintln!("{:?}", command);
 
         match command.status() {
-            Ok(status) => if ! status.success() {
-                return Err(format!("failed to add boot entry: {}", status));
-            },
+            Ok(status) => {
+                if !status.success() {
+                    return Err(format!("failed to add boot entry: {}", status));
+                }
+            }
             Err(err) => {
                 return Err(format!("failed to add boot entry: {}", err));
             }
@@ -93,16 +112,16 @@ pub fn set_next_boot(efi_dir: &str, modify_order: bool) -> Result<(), String> {
 
     {
         let mut command = process::Command::new("efibootmgr");
-        command
-            .arg("--quiet")
-            .arg("--bootnext").arg("1776");
+        command.arg("--quiet").arg("--bootnext").arg("1776");
 
         eprintln!("{:?}", command);
 
         match command.status() {
-            Ok(status) => if ! status.success() {
-                return Err(format!("failed to set next boot: {}", status));
-            },
+            Ok(status) => {
+                if !status.success() {
+                    return Err(format!("failed to set next boot: {}", status));
+                }
+            }
             Err(err) => {
                 return Err(format!("failed to set next boot: {}", err));
             }
@@ -115,9 +134,7 @@ pub fn set_next_boot(efi_dir: &str, modify_order: bool) -> Result<(), String> {
 pub fn unset_next_boot() -> Result<(), String> {
     {
         let mut command = process::Command::new("efibootmgr");
-        command
-            .arg("--quiet")
-            .arg("--delete-bootnext");
+        command.arg("--quiet").arg("--delete-bootnext");
 
         eprintln!("{:?}", command);
 
@@ -134,7 +151,8 @@ pub fn unset_next_boot() -> Result<(), String> {
         command
             .arg("--quiet")
             .arg("--delete-bootnum")
-            .arg("--bootnum").arg("1776");
+            .arg("--bootnum")
+            .arg("1776");
 
         eprintln!("{:?}", command);
 

@@ -43,7 +43,9 @@ impl Sideband {
             ));
         }
 
-        Ok(Sideband { addr: sbreg_virt as u64 })
+        Ok(Sideband {
+            addr: sbreg_virt as u64,
+        })
     }
 
     pub unsafe fn read(&self, port: u8, reg: u32) -> u32 {

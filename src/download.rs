@@ -12,13 +12,13 @@ pub struct Cache {
 
 impl Cache {
     pub fn new<P: AsRef<Path>>(path: P, downloader: Option<Downloader>) -> Result<Cache, String> {
-        if ! path.as_ref().is_dir() {
+        if !path.as_ref().is_dir() {
             fs::create_dir(path.as_ref()).map_err(err_str)?;
         }
 
         Ok(Cache {
             path: path.as_ref().to_owned(),
-            downloader
+            downloader,
         })
     }
 

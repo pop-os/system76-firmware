@@ -41,7 +41,7 @@ fn tool() -> Result<(), String> {
 
     let efi_dir = match util::get_efi_mnt() {
         Some(x) => x,
-        None => return Err("EFI mount point not found".into())
+        None => return Err("EFI mount point not found".into()),
     };
 
     match Args::parse() {
@@ -56,29 +56,27 @@ fn tool() -> Result<(), String> {
 
             let (digest, _changelog) = match download(transition_kind) {
                 Ok(ok) => ok,
-                Err(err) => return Err(format!("failed to download: {}", err))
+                Err(err) => return Err(format!("failed to download: {}", err)),
             };
 
             match schedule(&digest, &efi_dir, transition_kind) {
                 Ok(()) => Ok(()),
-                Err(err) => Err(format!("failed to schedule: {}", err))
+                Err(err) => Err(format!("failed to schedule: {}", err)),
             }
         }
-        Args::Unschedule => {
-            match unschedule(&efi_dir) {
-                Ok(()) => Ok(()),
-                Err(err) => Err(format!("failed to unschedule: {}", err))
-            }
-        }
+        Args::Unschedule => match unschedule(&efi_dir) {
+            Ok(()) => Ok(()),
+            Err(err) => Err(format!("failed to unschedule: {}", err)),
+        },
         Args::ThelioIo => {
             let (digest, _revision) = match thelio_io_download() {
                 Ok(ok) => ok,
-                Err(err) => return Err(format!("failed to download: {}", err))
+                Err(err) => return Err(format!("failed to download: {}", err)),
             };
 
             match thelio_io_update(&digest) {
                 Ok(()) => Ok(()),
-                Err(err) => Err(format!("failed to update: {}", err))
+                Err(err) => Err(format!("failed to update: {}", err)),
             }
         }
     }
