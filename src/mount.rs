@@ -47,30 +47,30 @@ impl Mount {
 
         let source = parts
             .next()
-            .ok_or(Error::new(ErrorKind::Other, "Missing source"))?;
+            .ok_or_else(|| Error::new(ErrorKind::Other, "Missing source"))?;
         let dest = parts
             .next()
-            .ok_or(Error::new(ErrorKind::Other, "Missing dest"))?;
+            .ok_or_else(|| Error::new(ErrorKind::Other, "Missing dest"))?;
         let fs = parts
             .next()
-            .ok_or(Error::new(ErrorKind::Other, "Missing fs"))?;
+            .ok_or_else(|| Error::new(ErrorKind::Other, "Missing fs"))?;
         let options = parts
             .next()
-            .ok_or(Error::new(ErrorKind::Other, "Missing options"))?;
+            .ok_or_else(|| Error::new(ErrorKind::Other, "Missing options"))?;
         let dump = parts
             .next()
-            .ok_or(Error::new(ErrorKind::Other, "Missing dump"))?;
+            .ok_or_else(|| Error::new(ErrorKind::Other, "Missing dump"))?;
         let pass = parts
             .next()
-            .ok_or(Error::new(ErrorKind::Other, "Missing pass"))?;
+            .ok_or_else(|| Error::new(ErrorKind::Other, "Missing pass"))?;
 
         Ok(Mount {
-            source:  Self::parse_value(&source)?,
-            dest:    Self::parse_value(&dest)?,
-            fs:      Self::parse_value(&fs)?,
-            options: Self::parse_value(&options)?,
-            dump:    Self::parse_value(&dump)?,
-            pass:    Self::parse_value(&pass)?,
+            source:  Self::parse_value(source)?,
+            dest:    Self::parse_value(dest)?,
+            fs:      Self::parse_value(fs)?,
+            options: Self::parse_value(options)?,
+            dump:    Self::parse_value(dump)?,
+            pass:    Self::parse_value(pass)?,
         })
     }
 

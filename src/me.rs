@@ -1,5 +1,3 @@
-use libc;
-use plain;
 use std::{fs, io};
 use std::io::{Read, Write};
 use std::os::unix::io::AsRawFd;

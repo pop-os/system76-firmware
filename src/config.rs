@@ -1,16 +1,16 @@
-pub static CACHE: &'static str = "/var/cache/system76-firmware-daemon";
+pub static CACHE: &str = "/var/cache/system76-firmware-daemon";
 
-pub static KEY: &'static str = "GRD4KPGF2QUSBQVP3GR2VF5OVBXW3T4O6LZMR7YQJOYQ2MFHBKNA====";
+pub static KEY: &str = "GRD4KPGF2QUSBQVP3GR2VF5OVBXW3T4O6LZMR7YQJOYQ2MFHBKNA====";
 
-pub static URL: &'static str = "https://firmware.system76.com/buildchain/";
+pub static URL: &str = "https://firmware.system76.com/buildchain/";
 
-pub static PROJECT: &'static str = "firmware";
+pub static PROJECT: &str = "firmware";
 
-pub static THELIO_IO_PROJECT: &'static str = "thelio-io-firmware";
+pub static THELIO_IO_PROJECT: &str = "thelio-io-firmware";
 
-pub static BRANCH: &'static str = "master";
+pub static BRANCH: &str = "master";
 
-pub static CERT: &'static [u8] = br#"
+pub static CERT: &[u8] = br#"
 -----BEGIN CERTIFICATE-----
 MIIFeTCCA2GgAwIBAgIJAOM3Go178VbKMA0GCSqGSIb3DQEBDAUAMFMxCzAJBgNV
 BAYTAlVTMREwDwYDVQQIDAhDb2xvcmFkbzERMA8GA1UECgwIU3lzdGVtNzYxHjAc

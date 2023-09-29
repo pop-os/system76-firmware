@@ -28,7 +28,7 @@ enum Args {
 
 fn tool() -> Result<(), String> {
     if unsafe { libc::geteuid() } != 0 {
-        return Err(format!("must be run as root"));
+        return Err("must be run as root".to_string());
     }
 
     // Get I/O Permission

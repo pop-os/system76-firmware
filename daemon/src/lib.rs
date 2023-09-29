@@ -75,7 +75,7 @@ impl Client {
             .map_err(move |why| Error::Changelog(changelog.into(), why))
             .map(move |changelog| SystemInfo {
                 digest: Digest(digest.into()),
-                changelog: changelog,
+                changelog,
             })
     }
 
@@ -109,7 +109,7 @@ impl Client {
             .read2::<bool, String>()
             .map_err(|why| Error::ArgumentMismatch(METHOD_ME, why))
             .map(|(enabled, version)| IntelMeInfo {
-                enabled: enabled.into(),
+                enabled,
                 version: version.into(),
             })
     }

@@ -1,5 +1,5 @@
 // Make sure this is up to date with support article
-static TRANSITIONS: &'static [Transition] = &[
+static TRANSITIONS: &[Transition] = &[
     Transition::new("addw2", "PBx0Dx2", false),
     Transition::new("darp6", "N150CU", false), // TODO: set liberate to true
     // 17-inch 1660Ti
