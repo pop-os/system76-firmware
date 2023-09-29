@@ -5,7 +5,7 @@ use sha2::{Sha256, Digest};
 use tar::Archive;
 
 pub fn get_efi_mnt() -> Option<String> {
-    let bootctl_esp = process::Command::new("bootctl").args(&["--print-esp-path"])
+    let bootctl_esp = process::Command::new("bootctl").args(["--print-esp-path"])
         .output()
         .ok()
         .filter(|x| x.status.success())

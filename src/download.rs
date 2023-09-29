@@ -34,7 +34,7 @@ impl Cache {
             }
 
             let sha = Sha384::new(data.as_slice()).map_err(err_str)?;
-            if &sha.to_base32() == digest {
+            if sha.to_base32() == digest {
                 return Ok(data);
             } else {
                 fs::remove_file(&path).map_err(err_str)?;

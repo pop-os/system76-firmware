@@ -32,6 +32,7 @@ pub fn ec(primary: bool) -> Result<(String, String), String> {
     if primary {
         unsafe {
             // Handle specific model variations
+            #[allow(clippy::single_match)]
             match (sys_vendor.as_str(), product_version.as_str()) {
                 ("System76", "pang12" | "pang13") => {
                     let ec_io_path = Path::new("/sys/kernel/debug/ec/ec0/io");
@@ -45,7 +46,7 @@ pub fn ec(primary: bool) -> Result<(String, String), String> {
                         }
                     }
 
-                    let mut ec_io = File::open(&ec_io_path).map_err(err_str)?;
+                    let mut ec_io = File::open(ec_io_path).map_err(err_str)?;
 
                     let mut hms = [0u8; 3];
                     ec_io.seek(SeekFrom::Start(0x08)).map_err(err_str)?;

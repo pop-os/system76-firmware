@@ -73,31 +73,31 @@ pub struct ThelioIoNormal(PathBuf);
 
 impl ThelioIoNormal {
     pub fn revision(&self) -> io::Result<String> {
-        let name = self.0.file_name().ok_or(io::Error::new(
+        let name = self.0.file_name().ok_or_else(|| io::Error::new(
             io::ErrorKind::InvalidData,
             "ThelioIoNormal file name terminates in .."
-        ))?.to_str().ok_or(io::Error::new(
+        ))?.to_str().ok_or_else(|| io::Error::new(
             io::ErrorKind::InvalidData,
             "ThelioIoNormal file name is not valid UTF-8"
         ))?;
 
         let iface_name = format!("{}:1.1", name);
-        let path = self.0.join(&iface_name).join("revision");
-        read_file(&path)
+        let path = self.0.join(iface_name).join("revision");
+        read_file(path)
     }
 
     pub fn bootloader(self) -> io::Result<()> {
-        let name = self.0.file_name().ok_or(io::Error::new(
+        let name = self.0.file_name().ok_or_else(|| io::Error::new(
             io::ErrorKind::InvalidData,
             "ThelioIoNormal file name terminates in .."
-        ))?.to_str().ok_or(io::Error::new(
+        ))?.to_str().ok_or_else(|| io::Error::new(
             io::ErrorKind::InvalidData,
             "ThelioIoNormal file name is not valid UTF-8"
         ))?;
 
         let iface_name = format!("{}:1.1", name);
-        let path = self.0.join(&iface_name).join("bootloader");
-        fs::write(&path, "1")
+        let path = self.0.join(iface_name).join("bootloader");
+        fs::write(path, "1")
     }
 }
 
@@ -174,7 +174,7 @@ fn thelio_io_download_(tail_cache: &Path) -> Result<(String, String), String> {
     )?;
 
     let fetch_tail = || dl.tail().map_err(|why| anyhow!(why));
-    let tail = crate::cached_block(&tail_cache, fetch_tail).map_err(err_str)?;
+    let tail = crate::cached_block(tail_cache, fetch_tail).map_err(err_str)?;
     let cache = download::Cache::new(config::CACHE, Some(dl))?;
 
     eprintln!("downloading manifest.json");
@@ -185,7 +185,7 @@ fn thelio_io_download_(tail_cache: &Path) -> Result<(String, String), String> {
         let file = "metadata.json";
         eprintln!("downloading {}", file);
         let digest = manifest.files.get(file).ok_or(format!("{} not found", file))?;
-        cache.object(&digest)?
+        cache.object(digest)?
     };
     let metadata = serde_json::from_slice::<ThelioIoMetadata>(
         &metadata_json
@@ -195,10 +195,10 @@ fn thelio_io_download_(tail_cache: &Path) -> Result<(String, String), String> {
         let file = "main.hex";
         eprintln!("downloading {}", file);
         let digest = manifest.files.get(file).ok_or(format!("{} not found", file))?;
-        cache.object(&digest)?
+        cache.object(digest)?
     };
 
-    Ok((tail.digest.to_string(), metadata.revision))
+    Ok((tail.digest, metadata.revision))
 }
 
 pub fn thelio_io_list() -> Result<HashMap<String, String>, String> {
@@ -212,7 +212,7 @@ pub fn thelio_io_list() -> Result<HashMap<String, String>, String> {
         };
         let revision = match item {
             ThelioIo::Bootloader(_bootloader) => String::new(),
-            ThelioIo::Normal(normal) => normal.revision().unwrap_or(String::new()),
+            ThelioIo::Normal(normal) => normal.revision().unwrap_or_default(),
         };
         map.insert(path_str, revision);
     }
@@ -222,13 +222,13 @@ pub fn thelio_io_list() -> Result<HashMap<String, String>, String> {
 pub fn thelio_io_update(digest: &str) -> Result<(), String> {
     let cache = download::Cache::new(config::CACHE, None)?;
 
-    let manifest_json = cache.object(&digest)?;
+    let manifest_json = cache.object(digest)?;
     let manifest = serde_json::from_slice::<Manifest>(&manifest_json).map_err(err_str)?;
 
     let metadata_json = {
         let file = "metadata.json";
         let digest = manifest.files.get(file).ok_or(format!("{} not found", file))?;
-        cache.object(&digest)?
+        cache.object(digest)?
     };
     let metadata = serde_json::from_slice::<ThelioIoMetadata>(
         &metadata_json
@@ -237,7 +237,7 @@ pub fn thelio_io_update(digest: &str) -> Result<(), String> {
     let firmware_data = {
         let file = "main.hex";
         let digest = manifest.files.get(file).ok_or(format!("{} not found", file))?;
-        cache.object(&digest)?
+        cache.object(digest)?
     };
 
     eprintln!("Switching devices to bootloader");
@@ -249,7 +249,7 @@ pub fn thelio_io_update(digest: &str) -> Result<(), String> {
                 eprintln!("  already in bootloader");
             },
             ThelioIo::Normal(normal) => {
-                let revision = normal.revision().unwrap_or(String::new());
+                let revision = normal.revision().unwrap_or_default();
                 eprintln!("  revision: {:?}", revision);
                 if revision != metadata.revision {
                     eprintln!("  switching to bootloader");
@@ -297,7 +297,7 @@ pub fn thelio_io_update(digest: &str) -> Result<(), String> {
                 eprintln!("  still in bootloader!");
             },
             ThelioIo::Normal(normal) => {
-                let revision = normal.revision().unwrap_or(String::new());
+                let revision = normal.revision().unwrap_or_default();
                 eprintln!("  revision: {:?}", revision);
             }
         }

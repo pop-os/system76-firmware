@@ -140,9 +140,8 @@ const MODEL_WHITELIST: &[&str] = &[
 
 pub fn model_is_whitelisted(model: &str) -> bool {
     MODEL_WHITELIST
-        .into_iter()
-        .find(|whitelist| model == **whitelist)
-        .is_some()
+        .iter()
+        .any(|whitelist| model == *whitelist)
 }
 
 // Helper function for errors
@@ -247,20 +246,20 @@ fn download_firmware_id_(tail_cache: &Path, firmware_id: &str) -> Result<(String
         let file = "system76-firmware-update.tar.xz";
         eprintln!("downloading {}", file);
         let digest = manifest.files.get(file).ok_or(format!("{} not found", file))?;
-        cache.object(&digest)?
+        cache.object(digest)?
     };
 
     let firmware_data = {
         let file = format!("{}.tar.xz", firmware_id);
         eprintln!("downloading {}", file);
         let digest = manifest.files.get(&file).ok_or(format!("{} not found", file))?;
-        cache.object(&digest)?
+        cache.object(digest)?
     };
 
     eprintln!("loading changelog.json");
     let changelog = util::extract_file(&firmware_data, "./changelog.json").map_err(err_str)?;
 
-    Ok((tail.digest.to_string(), changelog))
+    Ok((tail.digest, changelog))
 }
 
 /// Retrieves a `Block` from the cached path if it exists and the modified time is recent.
@@ -282,7 +281,7 @@ fn cached_block<F: FnMut() -> anyhow::Result<Block>>(
             return Err(anyhow::anyhow!("timestamp exceeded"));
         }
 
-        let file = fs::File::open(&path)
+        let file = fs::File::open(path)
             .context("failed to read cached block")?;
 
         bincode::deserialize_from(file)
@@ -292,7 +291,7 @@ fn cached_block<F: FnMut() -> anyhow::Result<Block>>(
     if result.is_err() {
         let block = func().context("failed to fetch block")?;
 
-        let file = fs::File::create(&path)
+        let file = fs::File::create(path)
             .context("failed to create file for cached block")?;
 
         bincode::serialize_into(file, &block)
@@ -307,12 +306,12 @@ fn cached_block<F: FnMut() -> anyhow::Result<Block>>(
 fn extract<P: AsRef<Path>>(digest: &str, file: &str, path: P) -> Result<(), String> {
     let cache = download::Cache::new(config::CACHE, None)?;
 
-    let manifest_json = cache.object(&digest)?;
+    let manifest_json = cache.object(digest)?;
     let manifest = serde_json::from_slice::<Manifest>(&manifest_json).map_err(|e| e.to_string())?;
 
     let data = {
         let digest = manifest.files.get(file).ok_or(format!("{} not found", file))?;
-        cache.object(&digest)?
+        cache.object(digest)?
     };
 
     eprintln!("extracting {} to {}", file, path.as_ref().display());
@@ -332,7 +331,7 @@ pub fn schedule(digest: &str, efi_dir: &str, transition_kind: TransitionKind) ->
 
 pub fn schedule_firmware_id(digest: &str, efi_dir: &str, firmware_id: &str) -> Result<(), String> {
     if ! Path::new("/sys/firmware/efi").exists() {
-        return Err(format!("must be run using UEFI boot"));
+        return Err("must be run using UEFI boot".to_string());
     }
 
     let updater_file = "system76-firmware-update.tar.xz";
@@ -352,7 +351,7 @@ pub fn schedule_firmware_id(digest: &str, efi_dir: &str, firmware_id: &str) -> R
 
     extract(digest, updater_file, updater_tmp.path())?;
 
-    extract(digest, &firmware_file, &updater_tmp.path().join("firmware"))?;
+    extract(digest, &firmware_file, updater_tmp.path().join("firmware"))?;
 
     let updater_tmp_dir = updater_tmp.into_path();
     eprintln!("moving {} to {}", updater_tmp_dir.display(), updater_dir.display());
@@ -380,7 +379,7 @@ pub fn unschedule(efi_dir: &str) -> Result<(), String> {
 
     boot::unset_next_boot()?;
 
-    remove_dir(&updater_dir)?;
+    remove_dir(updater_dir)?;
 
     eprintln!("Firmware update cancelled.");
 
