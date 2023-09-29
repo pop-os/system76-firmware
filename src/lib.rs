@@ -343,7 +343,7 @@ pub fn schedule_firmware_id(digest: &str, efi_dir: &str, firmware_id: &str) -> R
 
     remove_dir(&updater_dir)?;
 
-    let updater_tmp = match tempdir::TempDir::new_in(efi_dir, "system76-firmware-update") {
+    let updater_tmp = match tempfile::TempDir::with_prefix_in(efi_dir, "system76-firmware-update") {
         Ok(ok) => ok,
         Err(err) => {
             return Err(format!("failed to create temporary directory: {}", err));
