@@ -1,11 +1,12 @@
 use lzma::reader::LzmaReader;
-use std::{fs, io, path, process};
+use sha2::{Digest, Sha256};
 use std::io::Read;
-use sha2::{Sha256, Digest};
+use std::{fs, io, path, process};
 use tar::Archive;
 
 pub fn get_efi_mnt() -> Option<String> {
-    let bootctl_esp = process::Command::new("bootctl").args(["--print-esp-path"])
+    let bootctl_esp = process::Command::new("bootctl")
+        .args(["--print-esp-path"])
         .output()
         .ok()
         .filter(|x| x.status.success())
@@ -18,27 +19,26 @@ pub fn get_efi_mnt() -> Option<String> {
             path::Path::new("/boot"),
             path::Path::new("/boot/efi"),
             path::Path::new("/efi"),
-        ].iter()
-         .find(|x| x.join(efi).as_path().is_dir())
-         .and_then(|x| x.to_str().map(String::from))
+        ]
+        .iter()
+        .find(|x| x.join(efi).as_path().is_dir())
+        .and_then(|x| x.to_str().map(String::from))
     })
 }
 
 pub fn extract<P: AsRef<path::Path>>(data: &[u8], p: P) -> io::Result<()> {
-    let decompressor = LzmaReader::new_decompressor(data).map_err(|err| io::Error::new(
-        io::ErrorKind::Other,
-        err
-    ))?;
+    let decompressor = LzmaReader::new_decompressor(data)
+        .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
     let mut tar = Archive::new(decompressor);
 
-    for file_res in tar.entries()?{
+    for file_res in tar.entries()? {
         let mut file = file_res?;
 
         println!("{:?}", file.path());
-        if ! file.unpack_in(&p)? {
+        if !file.unpack_in(&p)? {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidData,
-                format!("invalid file path {:?}", file.path())
+                format!("invalid file path {:?}", file.path()),
             ));
         }
     }
@@ -47,13 +47,11 @@ pub fn extract<P: AsRef<path::Path>>(data: &[u8], p: P) -> io::Result<()> {
 }
 
 pub fn extract_file<P: AsRef<path::Path>>(data: &[u8], path: P) -> io::Result<String> {
-    let decompressor = LzmaReader::new_decompressor(data).map_err(|err| io::Error::new(
-        io::ErrorKind::Other,
-        err
-    ))?;
+    let decompressor = LzmaReader::new_decompressor(data)
+        .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
     let mut tar = Archive::new(decompressor);
 
-    for file_res in tar.entries()?{
+    for file_res in tar.entries()? {
         let mut file = file_res?;
 
         if let Ok(file_path) = file.path() {
@@ -70,7 +68,7 @@ pub fn extract_file<P: AsRef<path::Path>>(data: &[u8], path: P) -> io::Result<St
 
     Err(io::Error::new(
         io::ErrorKind::NotFound,
-        format!("failed to find {:?}", path.as_ref())
+        format!("failed to find {:?}", path.as_ref()),
     ))
 }
 
@@ -87,7 +85,10 @@ pub fn sha256(input: &[u8]) -> String {
     format!("{:x}", Sha256::digest(input))
 }
 
-pub fn retry<T, E>(action: impl Fn() -> Result<T, E>, cleanup: impl Fn() -> Result<(), E>) -> Result<T, E> {
+pub fn retry<T, E>(
+    action: impl Fn() -> Result<T, E>,
+    cleanup: impl Fn() -> Result<(), E>,
+) -> Result<T, E> {
     let mut tries = 0;
 
     loop {
@@ -98,7 +99,7 @@ pub fn retry<T, E>(action: impl Fn() -> Result<T, E>, cleanup: impl Fn() -> Resu
 
             if tries < 3 {
                 tries += 1;
-                continue
+                continue;
             }
         }
 

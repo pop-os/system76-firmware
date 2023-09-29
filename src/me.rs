@@ -1,11 +1,12 @@
-use std::{fs, io};
 use std::io::{Read, Write};
 use std::os::unix::io::AsRawFd;
 use std::path::Path;
+use std::{fs, io};
 use uuid::Uuid;
 
 use crate::err_str;
 
+#[rustfmt::skip]
 #[repr(packed)]
 struct PackedResponse(
     u8, u8, u8, u8,
@@ -36,12 +37,7 @@ pub fn me() -> Result<Option<String>, String> {
         let uuid = Uuid::parse_str("8e6a6715-9abc-4043-88ef-9e39c6f63e0f").unwrap();
         let mut uuid_bytes = [0; 16];
         {
-            let (
-                time_low,
-                time_mid,
-                time_hi_version,
-                bytes
-            ) = uuid.as_fields();
+            let (time_low, time_mid, time_hi_version, bytes) = uuid.as_fields();
 
             uuid_bytes[0] = time_low as u8;
             uuid_bytes[1] = (time_low >> 8) as u8;
@@ -58,10 +54,10 @@ pub fn me() -> Result<Option<String>, String> {
         }
 
         if unsafe { libc::ioctl(mei_fd, 0xc0104801, uuid_bytes.as_mut_ptr()) } != 0 {
-           return Err(format!(
-               "failed to send MEI UUID: {}",
-               io::Error::last_os_error()
-           ));
+            return Err(format!(
+                "failed to send MEI UUID: {}",
+                io::Error::last_os_error()
+            ));
         }
 
         let request = [0xFF, 0x02, 0x00, 0x00];

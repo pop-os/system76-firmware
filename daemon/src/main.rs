@@ -1,5 +1,5 @@
 use dbus::blocking::Connection;
-use dbus_crossroads::{Crossroads, Context, MethodErr};
+use dbus_crossroads::{Context, Crossroads, MethodErr};
 use std::{io, process};
 
 use system76_firmware::*;
@@ -29,25 +29,29 @@ fn daemon() -> Result<(), String> {
     struct State {
         efi_dir: String,
         in_whitelist: bool,
-        transition_kind: TransitionKind
+        transition_kind: TransitionKind,
     }
 
     let state = State {
         efi_dir: match util::get_efi_mnt() {
             Some(x) => x,
-            None => return Err("EFI mount point not found".into())
+            None => return Err("EFI mount point not found".into()),
         },
 
-        in_whitelist:
-            dmi_vendor().ok().map_or(false, |vendor| vendor.contains("System76")) &&
-            bios().ok().map_or(false, |(model, _)| model_is_whitelisted(&*model)),
+        in_whitelist: dmi_vendor()
+            .ok()
+            .map_or(false, |vendor| vendor.contains("System76"))
+            && bios()
+                .ok()
+                .map_or(false, |(model, _)| model_is_whitelisted(&*model)),
 
-        transition_kind: TransitionKind::Automatic
+        transition_kind: TransitionKind::Automatic,
     };
 
     let c = Connection::new_system().map_err(err_str)?;
 
-    c.request_name(DBUS_DEST, false, true, false).map_err(err_str)?;
+    c.request_name(DBUS_DEST, false, true, false)
+        .map_err(err_str)?;
 
     let mut cr = Crossroads::new();
 
@@ -66,7 +70,7 @@ fn daemon() -> Result<(), String> {
                     eprintln!("{}", err);
                     MethodErr::failed(&err)
                 })
-            }
+            },
         );
 
         b.method(
@@ -83,7 +87,7 @@ fn daemon() -> Result<(), String> {
                     eprintln!("{}", err);
                     MethodErr::failed(&err)
                 })
-            }
+            },
         );
 
         b.method(
@@ -97,18 +101,14 @@ fn daemon() -> Result<(), String> {
                 }
 
                 match me() {
-                    Ok(Some(me_version)) => {
-                        Ok((true, me_version))
-                    }
-                    Ok(None) => {
-                        Ok((false, String::new()))
-                    }
+                    Ok(Some(me_version)) => Ok((true, me_version)),
+                    Ok(None) => Ok((false, String::new())),
                     Err(err) => {
                         eprintln!("{}", err);
                         Err(MethodErr::failed(&err))
                     }
                 }
-            }
+            },
         );
 
         b.method(
@@ -127,7 +127,7 @@ fn daemon() -> Result<(), String> {
                         eprintln!("{}", err);
                         MethodErr::failed(&err)
                     })
-            }
+            },
         );
 
         b.method(
@@ -144,7 +144,7 @@ fn daemon() -> Result<(), String> {
                     eprintln!("{}", err);
                     MethodErr::failed(&err)
                 })
-            }
+            },
         );
 
         b.method(
@@ -161,7 +161,7 @@ fn daemon() -> Result<(), String> {
                     eprintln!("{}", err);
                     MethodErr::failed(&err)
                 })
-            }
+            },
         );
 
         b.method(
@@ -178,7 +178,7 @@ fn daemon() -> Result<(), String> {
                     eprintln!("{}", err);
                     MethodErr::failed(&err)
                 })
-            }
+            },
         );
 
         b.method(
@@ -192,7 +192,7 @@ fn daemon() -> Result<(), String> {
                     eprintln!("{}", err);
                     MethodErr::failed(&err)
                 })
-            }
+            },
         );
 
         b.method(
@@ -202,13 +202,11 @@ fn daemon() -> Result<(), String> {
             |_ctx: &mut Context, _state: &mut State, _inputs: ()| {
                 eprintln!("ThelioIoList");
 
-                thelio_io_list()
-                    .map(|v| (v,))
-                    .map_err(|err| {
-                        eprintln!("{}", err);
-                        MethodErr::failed(&err)
-                    })
-            }
+                thelio_io_list().map(|v| (v,)).map_err(|err| {
+                    eprintln!("{}", err);
+                    MethodErr::failed(&err)
+                })
+            },
         );
 
         b.method(
@@ -222,7 +220,7 @@ fn daemon() -> Result<(), String> {
                     eprintln!("{}", err);
                     MethodErr::failed(&err)
                 })
-            }
+            },
         );
     });
 

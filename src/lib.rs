@@ -23,8 +23,7 @@ pub use crate::bios::bios;
 pub use crate::ec::{ec, ec_or_none};
 pub use crate::me::me;
 pub use crate::thelio_io::{
-    ThelioIo, ThelioIoMetadata,
-    thelio_io_download, thelio_io_list, thelio_io_update
+    thelio_io_download, thelio_io_list, thelio_io_update, ThelioIo, ThelioIoMetadata,
 };
 pub use crate::transition::TransitionKind;
 
@@ -139,9 +138,7 @@ const MODEL_WHITELIST: &[&str] = &[
 ];
 
 pub fn model_is_whitelisted(model: &str) -> bool {
-    MODEL_WHITELIST
-        .iter()
-        .any(|whitelist| model == *whitelist)
+    MODEL_WHITELIST.iter().any(|whitelist| model == *whitelist)
 }
 
 // Helper function for errors
@@ -161,7 +158,7 @@ pub fn model_variant(model: &str) -> Result<u8, String> {
     };
 
     let mut variant = 0;
-    if ! pins.is_empty() {
+    if !pins.is_empty() {
         let sideband = unsafe { sideband::Sideband::new(0xFD00_0000)? };
         for (i, pin) in pins.iter().enumerate() {
             let data = unsafe { sideband.gpio(pin.0, pin.1) };
@@ -183,7 +180,8 @@ pub fn firmware_id(transition_kind: TransitionKind) -> Result<String, String> {
     let (bios_model, _bios_version) = bios::bios()?;
     let variant = model_variant(&bios_model)?;
     let (ec_project, _ec_version) = ec_or_none(true);
-    let (transition_model, transition_ec) = transition_kind.transition(&bios_model, variant, &ec_project)?;
+    let (transition_model, transition_ec) =
+        transition_kind.transition(&bios_model, variant, &ec_project)?;
     Ok(generate_firmware_id(&transition_model, &transition_ec))
 }
 
@@ -193,7 +191,11 @@ fn remove_dir<P: AsRef<Path>>(path: P) -> Result<(), String> {
         match fs::remove_dir_all(&path) {
             Ok(()) => (),
             Err(err) => {
-                return Err(format!("failed to remove {}: {}", path.as_ref().display(), err));
+                return Err(format!(
+                    "failed to remove {}: {}",
+                    path.as_ref().display(),
+                    err
+                ));
             }
         }
     }
@@ -210,9 +212,11 @@ pub fn download_firmware_id(firmware_id: &str) -> Result<(String, String), Strin
 
     util::retry(
         || download_firmware_id_(&tail_path, firmware_id),
-        || fs::remove_file(&tail_path)
-            .context("failed to remove tail cache")
-            .map_err(err_str)
+        || {
+            fs::remove_file(&tail_path)
+                .context("failed to remove tail cache")
+                .map_err(err_str)
+        },
     )
 }
 
@@ -222,12 +226,12 @@ fn download_firmware_id_(tail_cache: &Path, firmware_id: &str) -> Result<(String
         config::URL,
         config::PROJECT,
         config::BRANCH,
-        Some(config::CERT)
+        Some(config::CERT),
     )?;
 
     if !Path::new(config::CACHE).is_dir() {
-       eprintln!("creating cache directory {}", config::CACHE);
-       fs::create_dir(config::CACHE).map_err(err_str)?;
+        eprintln!("creating cache directory {}", config::CACHE);
+        fs::create_dir(config::CACHE).map_err(err_str)?;
     }
 
     eprintln!("downloading tail");
@@ -245,14 +249,20 @@ fn download_firmware_id_(tail_cache: &Path, firmware_id: &str) -> Result<(String
     let _updater_data = {
         let file = "system76-firmware-update.tar.xz";
         eprintln!("downloading {}", file);
-        let digest = manifest.files.get(file).ok_or(format!("{} not found", file))?;
+        let digest = manifest
+            .files
+            .get(file)
+            .ok_or(format!("{} not found", file))?;
         cache.object(digest)?
     };
 
     let firmware_data = {
         let file = format!("{}.tar.xz", firmware_id);
         eprintln!("downloading {}", file);
-        let digest = manifest.files.get(&file).ok_or(format!("{} not found", file))?;
+        let digest = manifest
+            .files
+            .get(&file)
+            .ok_or(format!("{} not found", file))?;
         cache.object(digest)?
     };
 
@@ -269,11 +279,11 @@ fn download_firmware_id_(tail_cache: &Path, firmware_id: &str) -> Result<(String
 /// - If the cache does not require an update, it will be returned after being deserialized.
 fn cached_block<F: FnMut() -> anyhow::Result<Block>>(
     path: &Path,
-    mut func: F
-) -> anyhow::Result<Block>  {
+    mut func: F,
+) -> anyhow::Result<Block> {
     let result: anyhow::Result<Block> = (|| {
-        let modified = timestamp::modified_since_unix(path)
-            .context("could not get modified time")?;
+        let modified =
+            timestamp::modified_since_unix(path).context("could not get modified time")?;
 
         let now = timestamp::current();
 
@@ -281,21 +291,17 @@ fn cached_block<F: FnMut() -> anyhow::Result<Block>>(
             return Err(anyhow::anyhow!("timestamp exceeded"));
         }
 
-        let file = fs::File::open(path)
-            .context("failed to read cached block")?;
+        let file = fs::File::open(path).context("failed to read cached block")?;
 
-        bincode::deserialize_from(file)
-            .context("failed to deserialize cached block")
+        bincode::deserialize_from(file).context("failed to deserialize cached block")
     })();
 
     if result.is_err() {
         let block = func().context("failed to fetch block")?;
 
-        let file = fs::File::create(path)
-            .context("failed to create file for cached block")?;
+        let file = fs::File::create(path).context("failed to create file for cached block")?;
 
-        bincode::serialize_into(file, &block)
-            .context("failed to cache block")?;
+        bincode::serialize_into(file, &block).context("failed to cache block")?;
 
         Ok(block)
     } else {
@@ -310,7 +316,10 @@ fn extract<P: AsRef<Path>>(digest: &str, file: &str, path: P) -> Result<(), Stri
     let manifest = serde_json::from_slice::<Manifest>(&manifest_json).map_err(|e| e.to_string())?;
 
     let data = {
-        let digest = manifest.files.get(file).ok_or(format!("{} not found", file))?;
+        let digest = manifest
+            .files
+            .get(file)
+            .ok_or(format!("{} not found", file))?;
         cache.object(digest)?
     };
 
@@ -318,19 +327,28 @@ fn extract<P: AsRef<Path>>(digest: &str, file: &str, path: P) -> Result<(), Stri
     match util::extract(&data, &path) {
         Ok(()) => (),
         Err(err) => {
-            return Err(format!("failed to extract {} to {}: {}", file, path.as_ref().display(), err));
+            return Err(format!(
+                "failed to extract {} to {}: {}",
+                file,
+                path.as_ref().display(),
+                err
+            ));
         }
     }
 
     Ok(())
 }
 
-pub fn schedule(digest: &str, efi_dir: &str, transition_kind: TransitionKind) -> Result<(), String> {
+pub fn schedule(
+    digest: &str,
+    efi_dir: &str,
+    transition_kind: TransitionKind,
+) -> Result<(), String> {
     schedule_firmware_id(digest, efi_dir, &firmware_id(transition_kind)?)
 }
 
 pub fn schedule_firmware_id(digest: &str, efi_dir: &str, firmware_id: &str) -> Result<(), String> {
-    if ! Path::new("/sys/firmware/efi").exists() {
+    if !Path::new("/sys/firmware/efi").exists() {
         return Err("must be run using UEFI boot".to_string());
     }
 
@@ -354,19 +372,27 @@ pub fn schedule_firmware_id(digest: &str, efi_dir: &str, firmware_id: &str) -> R
     extract(digest, &firmware_file, updater_tmp.path().join("firmware"))?;
 
     let updater_tmp_dir = updater_tmp.into_path();
-    eprintln!("moving {} to {}", updater_tmp_dir.display(), updater_dir.display());
+    eprintln!(
+        "moving {} to {}",
+        updater_tmp_dir.display(),
+        updater_dir.display()
+    );
     match fs::rename(&updater_tmp_dir, &updater_dir) {
         Ok(()) => (),
         Err(err) => {
             let _ = remove_dir(&updater_tmp_dir);
-            return Err(format!("failed to move {} to {}: {}", updater_tmp_dir.display(), updater_dir.display(), err));
+            return Err(format!(
+                "failed to move {} to {}: {}",
+                updater_tmp_dir.display(),
+                updater_dir.display(),
+                err
+            ));
         }
     }
 
     // thelio-mira-r1/r2 will not boot to firmware updater unless it is added to BootOrder
     let modify_order =
-        firmware_id.starts_with("thelio-mira-r1_") ||
-        firmware_id.starts_with("thelio-mira-r2_");
+        firmware_id.starts_with("thelio-mira-r1_") || firmware_id.starts_with("thelio-mira-r2_");
     boot::set_next_boot(efi_dir, modify_order)?;
 
     eprintln!("Firmware update scheduled. Reboot your machine to install.");
@@ -387,7 +413,11 @@ pub fn unschedule(efi_dir: &str) -> Result<(), String> {
 }
 
 mod timestamp {
-    use std::{io, path::Path, time::{Duration, SystemTime}};
+    use std::{
+        io,
+        path::Path,
+        time::{Duration, SystemTime},
+    };
 
     /// Convenience function for fetching the current time in seconds since the UNIX Epoch.
     pub fn current() -> u64 {

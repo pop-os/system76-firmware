@@ -7,7 +7,7 @@ fn inner() -> Result<(), String> {
         config::URL,
         config::PROJECT,
         config::BRANCH,
-        Some(config::CERT)
+        Some(config::CERT),
     )?;
 
     eprintln!("downloading tail");
