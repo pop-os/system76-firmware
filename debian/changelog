@@ -1,3 +1,9 @@
+system76-firmware (1.0.55) jammy; urgency=medium
+
+  * Add meer8
+
+ -- Levi Portenier <levi@system76.com>  Mon, 06 Nov 2023 10:41:31 -0700
+
 system76-firmware (1.0.54) jammy; urgency=medium
 
   * Add thelio-spark-b1
