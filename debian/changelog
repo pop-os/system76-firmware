@@ -1,3 +1,9 @@
+system76-firmware (1.0.57) jammy; urgency=medium
+
+  * Add thelio-major-r5
+
+ -- Levi Portenier <levi@system76.com>  Thu, 21 Dec 2023 09:37:51 -0700
+
 system76-firmware (1.0.56) jammy; urgency=medium
 
   * Add pang14
