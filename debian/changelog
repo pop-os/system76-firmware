@@ -1,3 +1,9 @@
+system76-firmware (1.0.59) jammy; urgency=medium
+
+  * Add addw4, lemp13, oryp12
+
+ -- Jeremy Soller <jeremy@system76.com>  Wed, 28 Feb 2024 10:40:05 -0700
+
 system76-firmware (1.0.58) jammy; urgency=medium
 
   * Fix for pang14
