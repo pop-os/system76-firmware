@@ -1,3 +1,9 @@
+system76-firmware (1.0.60) jammy; urgency=medium
+
+  * Add thelio-r4
+
+ -- Levi Portenier <levi@system76.com>  Thu, 07 Mar 2024 12:33:50 -0700
+
 system76-firmware (1.0.59) jammy; urgency=medium
 
   * Add addw4, lemp13, oryp12
