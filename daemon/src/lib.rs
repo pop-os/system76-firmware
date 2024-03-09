@@ -193,10 +193,8 @@ pub struct Changelog {
 pub struct Version {
     pub date: Box<str>,
     pub bios: Box<str>,
-    pub description: Box<str>,
-    pub me_cr: Option<bool>,
-    pub me_hap: Option<bool>,
     pub me: Option<Box<str>>,
+    pub description: Box<str>,
 }
 
 /// Signature of the firmware that can be installed on the system.
