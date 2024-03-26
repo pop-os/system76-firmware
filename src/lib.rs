@@ -64,6 +64,7 @@ const MODEL_WHITELIST: &[&str] = &[
     "gaze17-3050",
     "gaze17-3060-b",
     "gaze18",
+    "gaze19",
     "kudu2",
     "kudu3",
     "kudu4",
