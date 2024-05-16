@@ -1,3 +1,11 @@
+system76-firmware (1.0.62) jammy; urgency=medium
+
+  * Add lemp13-b
+  * Add darp10
+  * Add darp10-b
+
+ -- Levi Portenier <levi@system76.com>  Thu, 16 May 2024 14:00:08 -0600
+
 system76-firmware (1.0.61) jammy; urgency=medium
 
   * Add meer8-b
