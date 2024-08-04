@@ -53,7 +53,7 @@ pub fn me() -> Result<Option<String>, String> {
             uuid_bytes[8..].copy_from_slice(bytes);
         }
 
-        if unsafe { libc::ioctl(mei_fd, 0xc0104801, uuid_bytes.as_mut_ptr()) } != 0 {
+        if unsafe { libc::ioctl(mei_fd, 0xc0104801u32 as libc::Ioctl, uuid_bytes.as_mut_ptr()) } != 0 {
             return Err(format!(
                 "failed to send MEI UUID: {}",
                 io::Error::last_os_error()
