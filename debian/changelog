@@ -1,3 +1,9 @@
+system76-firmware (1.0.64) jammy; urgency=medium
+
+  * Add pang15
+
+ -- Levi Portenier <levi@system76.com>  Tue, 26 Nov 2024 11:45:43 -0700
+
 system76-firmware (1.0.63) jammy; urgency=medium
 
   * Add meer9
