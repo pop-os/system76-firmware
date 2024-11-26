@@ -1,3 +1,9 @@
+system76-firmware (1.0.63) jammy; urgency=medium
+
+  * Add meer9
+
+ -- Levi Portenier <levi@system76.com>  Fri, 15 Nov 2024 16:01:24 -0700
+
 system76-firmware (1.0.62) jammy; urgency=medium
 
   * Add lemp13-b
