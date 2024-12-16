@@ -1,3 +1,9 @@
+system76-firmware (1.0.66) jammy; urgency=medium
+
+  * Add thelio-spark-r2
+
+ -- Levi Portenier <levi@system76.com>  Mon, 16 Dec 2024 11:20:38 -0700
+
 system76-firmware (1.0.65) jammy; urgency=medium
 
   * Add thelio-mira-r4
