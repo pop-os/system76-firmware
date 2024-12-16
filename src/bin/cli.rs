@@ -32,6 +32,7 @@ fn tool() -> Result<(), String> {
     }
 
     // Get I/O Permission
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     if unsafe { libc::iopl(3) } < 0 {
         return Err(format!(
             "failed to get I/O permission: {}",
