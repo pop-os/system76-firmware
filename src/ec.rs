@@ -34,7 +34,7 @@ pub fn ec(primary: bool) -> Result<(String, String), String> {
             // Handle specific model variations
             #[allow(clippy::single_match)]
             match (sys_vendor.as_str(), product_version.as_str()) {
-                ("System76", "pang12" | "pang13" | "pang14") => {
+                ("System76", "pang12" | "pang13" | "pang14" | "pang15") => {
                     let ec_io_path = Path::new("/sys/kernel/debug/ec/ec0/io");
                     if !ec_io_path.exists() {
                         let status = Command::new("modprobe")
