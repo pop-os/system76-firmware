@@ -1,3 +1,9 @@
+system76-firmware (1.0.67) jammy; urgency=medium
+
+  * Fix pang15
+
+ -- Tim Crawford <tcrawford@system76.com>  Wed, 18 Dec 2024 08:44:48 -0700
+
 system76-firmware (1.0.66) jammy; urgency=medium
 
   * Add thelio-spark-r2
