@@ -1,6 +1,6 @@
 pub static CACHE: &str = "/var/cache/system76-firmware-daemon";
 
-pub static KEY: &str = "GRD4KPGF2QUSBQVP3GR2VF5OVBXW3T4O6LZMR7YQJOYQ2MFHBKNA====";
+pub static KEY: &str = "4WSYXHSHEZRGI6CUEE5DS7TGGTCK2UY67OF2TW4FX2OWT2CVGWEA";
 
 pub static URL: &str = "https://firmware.system76.com/buildchain/";
 
