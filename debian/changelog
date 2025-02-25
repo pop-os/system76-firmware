@@ -1,3 +1,9 @@
+system76-firmware (1.0.70) noble; urgency=medium
+
+  * Add thelio-mega-r4
+
+ -- Levi Portenier <levi@system76.com>  Tue, 25 Feb 2025 15:09:58 -0700
+
 system76-firmware (1.0.69) noble; urgency=medium
 
   * Add thelio-r5
