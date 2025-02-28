@@ -1,7 +1,8 @@
 #!/usr/bin/make -f
 
+RUST_VERSION=$(shell grep rust-version Cargo.toml | awk -F'"' '{print $$2}')
 export VENDORED ?= 1
-export CARGO_BIN ?= cargo-1.80
+export CARGO_BIN ?= cargo-$(RUST_VERSION)
 CLEAN ?= 1
 
 %:

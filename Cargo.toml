@@ -3,9 +3,10 @@ name = "system76-firmware"
 version = "1.0.70"
 authors = ["Jeremy Soller <jeremy@system76.com>"]
 edition = "2021"
+rust-version = "1.80"
 
 [workspace]
-members = [ "daemon" ]
+members = ["daemon"]
 
 [[bin]]
 name = "system76-firmware-cli"
