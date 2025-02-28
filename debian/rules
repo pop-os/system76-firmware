@@ -1,6 +1,7 @@
 #!/usr/bin/make -f
 
 export VENDORED ?= 1
+export CARGO_BIN ?= cargo-1.80
 CLEAN ?= 1
 
 %:
