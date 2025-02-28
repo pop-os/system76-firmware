@@ -25,7 +25,7 @@ endif
 all: target/release/$(CLI) target/release/$(DAEMON)
 
 clean:
-	$(CARGO_BIN) clean
+	cargo clean
 
 distclean: clean
 	rm -rf .cargo vendor vendor.tar.xz
