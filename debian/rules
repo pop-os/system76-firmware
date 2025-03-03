@@ -1,5 +1,6 @@
 #!/usr/bin/make -f
 
+RUST_VERSION=$(shell grep rust-version Cargo.toml | awk -F'"' '{print $$2}')
 export VENDORED ?= 1
 CLEAN ?= 1
 
@@ -7,12 +8,13 @@ CLEAN ?= 1
 	dh $@ --with=systemd
 
 override_dh_auto_build:
-	env CARGO_HOME="$$(pwd)/target/cargo" \
-	dh_auto_build
+	env CARGO_BIN="cargo-$(RUST_VERSION)" \
+	   CARGO_HOME="$$(pwd)/target/cargo" \
+	   dh_auto_build
 
 override_dh_auto_clean:
 ifeq ($(CLEAN),1)
-	make clean
+	ischroot && env CARGO_BIN="cargo-$(RUST_VERSION)" make clean || make clean
 endif
 ifeq ($(VENDORED),1)
 	if ! ischroot; then \
