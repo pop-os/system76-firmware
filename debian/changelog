@@ -1,3 +1,10 @@
+system76-firmware (1.0.71) noble; urgency=medium
+
+  * Add bonw16
+  * Add darp11, darp11-b
+
+ -- Tim Crawford <tcrawford@system76.com>  Tue, 25 Mar 2025 09:31:32 -0600
+
 system76-firmware (1.0.70) noble; urgency=medium
 
   * Add thelio-mega-r4
