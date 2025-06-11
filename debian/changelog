@@ -1,3 +1,9 @@
+system76-firmware (1.0.73) noble; urgency=medium
+
+  * Add addw5
+
+ -- Tim Crawford <tcrawford@system76.com>  Wed, 11 Jun 2025 10:21:53 -0600
+
 system76-firmware (1.0.72) noble; urgency=medium
 
   * Add serw14
