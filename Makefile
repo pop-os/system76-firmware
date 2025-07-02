@@ -55,8 +55,8 @@ update:
 
 vendor:
 	mkdir -p .cargo
-	cargo vendor --sync daemon/Cargo.toml | head -n -1 > .cargo/config
-	echo 'directory = "vendor"' >> .cargo/config
+	cargo vendor --sync daemon/Cargo.toml | head -n -1 > .cargo/config.toml
+	echo 'directory = "vendor"' >> .cargo/config.toml
 	tar pcfJ vendor.tar.xz vendor
 	rm -rf vendor
 
