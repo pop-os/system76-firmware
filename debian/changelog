@@ -1,3 +1,9 @@
+system76-firmware (1.0.74) noble; urgency=medium
+
+  * Add meer10, meer10-b, and gaze20
+
+ -- Levi Portenier <levi@system76.com>  Tue, 01 Jul 2025 11:46:02 -0600
+
 system76-firmware (1.0.73) noble; urgency=medium
 
   * Add addw5
