@@ -1,3 +1,9 @@
+system76-firmware (1.0.75) noble; urgency=medium
+
+  * Update ecflash to 0.1.3
+
+ -- Tim Crawford <tcrawford@system76.com>  Wed, 20 Aug 2025 13:48:31 -0600
+
 system76-firmware (1.0.74) noble; urgency=medium
 
   * Add meer10, meer10-b, and gaze20
