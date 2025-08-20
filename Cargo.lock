@@ -259,14 +259,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ecflash"
-version = "0.1.0"
-source = "git+https://github.com/system76/ecflash.git?branch=stable#ee9d69d4edf3bee6b2fb6dddb021bb58ee3bbbbb"
-dependencies = [
- "lazy_static",
-]
-
-[[package]]
 name = "either"
 version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -761,12 +753,6 @@ dependencies = [
  "once_cell",
  "wasm-bindgen",
 ]
-
-[[package]]
-name = "lazy_static"
-version = "1.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
 name = "libc"
@@ -1363,19 +1349,19 @@ dependencies = [
 
 [[package]]
 name = "system76-firmware"
-version = "1.0.74"
+version = "1.0.75"
 dependencies = [
  "anyhow",
  "bincode",
  "buildchain",
  "clap",
- "ecflash",
  "libc",
  "plain",
  "rust-lzma",
  "serde",
  "serde_json",
  "sha2",
+ "system76_ecflash",
  "system76_ectool",
  "tar",
  "tempfile",
@@ -1396,6 +1382,12 @@ dependencies = [
  "system76-firmware",
  "thiserror",
 ]
+
+[[package]]
+name = "system76_ecflash"
+version = "0.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3b4428b459c1c06e7a3ecf1dd3e863f4e7442a474463094af6a702e3b860ec25"
 
 [[package]]
 name = "system76_ectool"

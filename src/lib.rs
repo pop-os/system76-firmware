@@ -12,6 +12,7 @@ pub mod util;
 
 mod bios;
 mod boot;
+#[cfg(target_arch = "x86_64")]
 mod ec;
 mod me;
 mod mount;
@@ -20,6 +21,7 @@ mod thelio_io;
 mod transition;
 
 pub use crate::bios::bios;
+#[cfg(target_arch = "x86_64")]
 pub use crate::ec::{ec, ec_or_none};
 pub use crate::me::me;
 pub use crate::thelio_io::{
@@ -208,7 +210,13 @@ pub fn generate_firmware_id(model: &str, project: &str) -> String {
 pub fn firmware_id(transition_kind: TransitionKind) -> Result<String, String> {
     let (bios_model, _bios_version) = bios::bios()?;
     let variant = model_variant(&bios_model)?;
-    let (ec_project, _ec_version) = ec_or_none(true);
+
+    let (ec_project, _ec_version) = if cfg!(target_arch = "x86_64") {
+        ec_or_none(true)
+    } else {
+        ("none".to_owned(), "".to_owned())
+    };
+
     let (transition_model, transition_ec) =
         transition_kind.transition(&bios_model, variant, &ec_project)?;
     Ok(generate_firmware_id(&transition_model, &transition_ec))
