@@ -1,3 +1,9 @@
+system76-firmware (1.0.75) noble; urgency=medium
+
+  * Add thelio-spark-r3
+
+ -- Levi Portenier <levi@system76.com>  Tue, 02 Sep 2025 13:02:17 -0600
+
 system76-firmware (1.0.74) noble; urgency=medium
 
   * Add meer10, meer10-b, and gaze20
