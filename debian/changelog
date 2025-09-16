@@ -1,3 +1,9 @@
+system76-firmware (1.0.76) noble; urgency=medium
+
+  * Add oryp13
+
+ -- Tim Crawford <tcrawford@system76.com>  Tue, 16 Sep 2025 13:00:08 -0600
+
 system76-firmware (1.0.75) noble; urgency=medium
 
   * Add thelio-spark-r3
