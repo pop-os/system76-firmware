@@ -23,6 +23,17 @@
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = [
             fenix.packages.${system}.complete.toolchain
+            pkgs.pkg-config
+          ];
+          buildInputs = [
+            pkgs.openssl
+            pkgs.xz
+            pkgs.dbus
+          ];
+          LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
+            pkgs.openssl
+            pkgs.xz
+            pkgs.dbus
           ];
         };
       }
