@@ -1,6 +1,6 @@
 [package]
 name = "system76-firmware"
-version = "1.0.76"
+version = "1.0.77"
 authors = ["Jeremy Soller <jeremy@system76.com>"]
 edition = "2024"
 rust-version = "1.91"
