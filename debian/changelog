@@ -1,3 +1,9 @@
+system76-firmware (1.0.78) noble; urgency=medium
+
+  * Add thelio-mira-r6
+
+ -- Jonah Grasso <jonah@system76.com>  Thu, 13 Aug 2026 09:26:03 -0600
+
 system76-firmware (1.0.77) noble; urgency=medium
 
   * Allow firmware switching for gaze20
