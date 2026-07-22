@@ -1,5 +1,5 @@
 use std::process;
-use system76_firmware::{bios, ec_or_none, generate_firmware_id, model_variant, TransitionKind};
+use system76_firmware::{TransitionKind, bios, ec_or_none, generate_firmware_id, model_variant};
 
 fn inner() -> Result<(), String> {
     let (bios_model, _bios_version) = bios()?;

@@ -23,7 +23,7 @@ pub use crate::bios::bios;
 pub use crate::ec::{ec, ec_or_none};
 pub use crate::me::me;
 pub use crate::thelio_io::{
-    thelio_io_download, thelio_io_list, thelio_io_update, ThelioIo, ThelioIoMetadata,
+    ThelioIo, ThelioIoMetadata, thelio_io_download, thelio_io_list, thelio_io_update,
 };
 pub use crate::transition::TransitionKind;
 
@@ -397,7 +397,8 @@ pub fn schedule_firmware_id(digest: &str, efi_dir: &str, firmware_id: &str) -> R
 
     remove_dir(&updater_dir)?;
 
-    let updater_tmp = match tempfile::TempDir::with_prefix_in("system76-firmware-update.", efi_dir) {
+    let updater_tmp = match tempfile::TempDir::with_prefix_in("system76-firmware-update.", efi_dir)
+    {
         Ok(ok) => ok,
         Err(err) => {
             return Err(format!("failed to create temporary directory: {}", err));

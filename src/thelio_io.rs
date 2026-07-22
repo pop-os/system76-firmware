@@ -39,9 +39,10 @@ impl ThelioIoBootloader {
         if status.success() {
             Ok(())
         } else {
-            Err(io::Error::other(
-                format!("dfu-programmer exited with {}", status),
-            ))
+            Err(io::Error::other(format!(
+                "dfu-programmer exited with {}",
+                status
+            )))
         }
     }
 

@@ -46,24 +46,14 @@ impl Mount {
     fn parse_line(line: &str) -> Result<Mount> {
         let mut parts = line.split(' ');
 
-        let source = parts
-            .next()
-            .ok_or_else(|| Error::other("Missing source"))?;
-        let dest = parts
-            .next()
-            .ok_or_else(|| Error::other("Missing dest"))?;
-        let fs = parts
-            .next()
-            .ok_or_else(|| Error::other("Missing fs"))?;
+        let source = parts.next().ok_or_else(|| Error::other("Missing source"))?;
+        let dest = parts.next().ok_or_else(|| Error::other("Missing dest"))?;
+        let fs = parts.next().ok_or_else(|| Error::other("Missing fs"))?;
         let options = parts
             .next()
             .ok_or_else(|| Error::other("Missing options"))?;
-        let dump = parts
-            .next()
-            .ok_or_else(|| Error::other("Missing dump"))?;
-        let pass = parts
-            .next()
-            .ok_or_else(|| Error::other("Missing pass"))?;
+        let dump = parts.next().ok_or_else(|| Error::other("Missing dump"))?;
+        let pass = parts.next().ok_or_else(|| Error::other("Missing pass"))?;
 
         Ok(Mount {
             source: Self::parse_value(source)?,

@@ -5,7 +5,7 @@ use system76_firmware::*;
 #[derive(Parser)]
 #[clap(
     name = "system76-firmware-cli",
-    about = "Download and install updates of System76 firmware",
+    about = "Download and install updates of System76 firmware"
 )]
 enum Args {
     #[clap(about = "Schedule installation of firmware for next boot")]
