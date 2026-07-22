@@ -13,7 +13,7 @@ fn read_file<P: AsRef<Path>>(path: P) -> io::Result<String> {
 }
 
 fn check_file<P: AsRef<Path>>(path: P, value: &str) -> bool {
-    read_file(path).ok().map_or(false, |x| x == value)
+    read_file(path).ok() == Some(value.to_string())
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -39,8 +39,7 @@ impl ThelioIoBootloader {
         if status.success() {
             Ok(())
         } else {
-            Err(io::Error::new(
-                io::ErrorKind::Other,
+            Err(io::Error::other(
                 format!("dfu-programmer exited with {}", status),
             ))
         }

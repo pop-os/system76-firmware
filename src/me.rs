@@ -6,8 +6,9 @@ use uuid::Uuid;
 
 use crate::err_str;
 
+#[allow(unused)]
 #[rustfmt::skip]
-#[repr(packed)]
+#[repr(C, packed)]
 struct PackedResponse(
     u8, u8, u8, u8,
     u16,

@@ -175,7 +175,7 @@ const MODEL_WHITELIST: &[&str] = &[
 ];
 
 pub fn model_is_whitelisted(model: &str) -> bool {
-    MODEL_WHITELIST.iter().any(|whitelist| model == *whitelist)
+    MODEL_WHITELIST.contains(&model)
 }
 
 // Helper function for errors
@@ -407,10 +407,10 @@ pub fn schedule_firmware_id(digest: &str, efi_dir: &str, firmware_id: &str) -> R
     extract(digest, updater_file, updater_tmp.path())?;
 
     // tar will not create a directory if it does not exist in the archive.
-    fs::create_dir(&updater_tmp.path().join("firmware")).map_err(err_str)?;
-    extract(digest, &firmware_file, &updater_tmp.path().join("firmware"))?;
+    fs::create_dir(updater_tmp.path().join("firmware")).map_err(err_str)?;
+    extract(digest, &firmware_file, updater_tmp.path().join("firmware"))?;
 
-    let updater_tmp_dir = updater_tmp.into_path();
+    let updater_tmp_dir = updater_tmp.keep();
     eprintln!(
         "moving {} to {}",
         updater_tmp_dir.display(),

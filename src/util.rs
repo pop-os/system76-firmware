@@ -28,7 +28,7 @@ pub fn get_efi_mnt() -> Option<String> {
 
 pub fn extract<P: AsRef<path::Path>>(data: &[u8], p: P) -> io::Result<()> {
     let decompressor = LzmaReader::new_decompressor(data)
-        .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
+        .map_err(io::Error::other)?;
     let mut tar = Archive::new(decompressor);
 
     for file_res in tar.entries()? {
@@ -48,12 +48,13 @@ pub fn extract<P: AsRef<path::Path>>(data: &[u8], p: P) -> io::Result<()> {
 
 pub fn extract_file<P: AsRef<path::Path>>(data: &[u8], path: P) -> io::Result<String> {
     let decompressor = LzmaReader::new_decompressor(data)
-        .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
+        .map_err(io::Error::other)?;
     let mut tar = Archive::new(decompressor);
 
     for file_res in tar.entries()? {
         let mut file = file_res?;
 
+        #[allow(clippy::collapsible_if)]
         if let Ok(file_path) = file.path() {
             if file_path != path.as_ref() {
                 continue;
