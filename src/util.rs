@@ -82,7 +82,7 @@ pub fn read_string<P: AsRef<path::Path>>(p: P) -> io::Result<String> {
 }
 
 pub fn sha256(input: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(input))
+    format!("{:x}", base16ct::HexDisplay(&Sha256::digest(input)))
 }
 
 pub fn retry<T, E>(

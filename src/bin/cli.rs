@@ -1,4 +1,4 @@
-use clap::{AppSettings, Parser};
+use clap::Parser;
 use std::{io, process};
 use system76_firmware::*;
 
@@ -6,17 +6,16 @@ use system76_firmware::*;
 #[clap(
     name = "system76-firmware-cli",
     about = "Download and install updates of System76 firmware",
-    setting = AppSettings::SubcommandRequired
 )]
 enum Args {
     #[clap(about = "Schedule installation of firmware for next boot")]
+    #[group(multiple = false)]
     Schedule {
         #[clap(help = "Schedule install of open firmware", long = "open")]
         open: bool,
         #[clap(
             help = "Schedule install of proprietary firmware",
-            long = "proprietary",
-            conflicts_with = "open"
+            long = "proprietary"
         )]
         proprietary: bool,
     },
