@@ -1,5 +1,5 @@
 use libc::{
-    c_int, c_void, close, mmap, open, MAP_FAILED, MAP_SHARED, O_RDWR, PROT_READ, PROT_WRITE,
+    MAP_FAILED, MAP_SHARED, O_RDWR, PROT_READ, PROT_WRITE, c_int, c_void, close, mmap, open,
 };
 
 use std::{ffi::CString, io, ptr};
