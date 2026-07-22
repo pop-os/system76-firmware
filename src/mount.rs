@@ -1,9 +1,10 @@
 use std::char;
 use std::ffi::OsString;
 use std::fs::File;
-use std::io::{BufRead, BufReader, Error, ErrorKind, Result};
+use std::io::{BufRead, BufReader, Error, Result};
 use std::os::unix::ffi::OsStringExt;
 
+#[allow(unused)]
 pub struct Mount {
     pub source: OsString,
     pub dest: OsString,
@@ -26,9 +27,9 @@ impl Mount {
                         if let Some(b) = bytes.next() {
                             code *= 8;
                             code += u32::from_str_radix(&(b as char).to_string(), 8)
-                                .map_err(|err| Error::new(ErrorKind::Other, err))?;
+                                .map_err(Error::other)?;
                         } else {
-                            return Err(Error::new(ErrorKind::Other, "truncated octal code"));
+                            return Err(Error::other("truncated octal code"));
                         }
                     }
                     ret.push(code as u8);
@@ -47,22 +48,22 @@ impl Mount {
 
         let source = parts
             .next()
-            .ok_or_else(|| Error::new(ErrorKind::Other, "Missing source"))?;
+            .ok_or_else(|| Error::other("Missing source"))?;
         let dest = parts
             .next()
-            .ok_or_else(|| Error::new(ErrorKind::Other, "Missing dest"))?;
+            .ok_or_else(|| Error::other("Missing dest"))?;
         let fs = parts
             .next()
-            .ok_or_else(|| Error::new(ErrorKind::Other, "Missing fs"))?;
+            .ok_or_else(|| Error::other("Missing fs"))?;
         let options = parts
             .next()
-            .ok_or_else(|| Error::new(ErrorKind::Other, "Missing options"))?;
+            .ok_or_else(|| Error::other("Missing options"))?;
         let dump = parts
             .next()
-            .ok_or_else(|| Error::new(ErrorKind::Other, "Missing dump"))?;
+            .ok_or_else(|| Error::other("Missing dump"))?;
         let pass = parts
             .next()
-            .ok_or_else(|| Error::new(ErrorKind::Other, "Missing pass"))?;
+            .ok_or_else(|| Error::other("Missing pass"))?;
 
         Ok(Mount {
             source: Self::parse_value(source)?,

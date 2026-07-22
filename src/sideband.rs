@@ -16,25 +16,29 @@ pub struct Sideband {
 
 impl Sideband {
     pub unsafe fn new(sbreg_phys: usize) -> Result<Sideband, String> {
-        let mem_str = CString::new("/dev/mem").unwrap();
-        let memfd: c_int = open(mem_str.as_ptr(), O_RDWR);
-        if memfd == -1 {
-            return Err(format!(
-                "failed to open /dev/mem: {}",
-                io::Error::last_os_error()
-            ));
-        }
+        let sbreg_virt = unsafe {
+            let mem_str = CString::new("/dev/mem").unwrap();
+            let memfd: c_int = open(mem_str.as_ptr(), O_RDWR);
+            if memfd == -1 {
+                return Err(format!(
+                    "failed to open /dev/mem: {}",
+                    io::Error::last_os_error()
+                ));
+            }
 
-        let sbreg_virt = mmap(
-            sbreg_phys as *mut c_void,
-            1 << 24,
-            PROT_READ | PROT_WRITE,
-            MAP_SHARED,
-            memfd,
-            sbreg_phys as i64,
-        );
+            let sbreg_virt = mmap(
+                sbreg_phys as *mut c_void,
+                1 << 24,
+                PROT_READ | PROT_WRITE,
+                MAP_SHARED,
+                memfd,
+                sbreg_phys as i64,
+            );
 
-        close(memfd);
+            close(memfd);
+
+            sbreg_virt
+        };
 
         if sbreg_virt == MAP_FAILED {
             return Err(format!(
@@ -52,18 +56,20 @@ impl Sideband {
         let offset = (u64::from(port) << P2SB_PORTID_SHIFT) + u64::from(reg);
         if offset < 1 << 24 {
             let addr = self.addr + offset;
-            ptr::read(addr as *mut u32)
+            unsafe { ptr::read(addr as *mut u32) }
         } else {
             0
         }
     }
 
     pub unsafe fn gpio(&self, port: u8, pad: u8) -> u64 {
-        let padbar: u32 = self.read(port, REG_PCH_GPIO_PADBAR);
+        unsafe {
+            let padbar: u32 = self.read(port, REG_PCH_GPIO_PADBAR);
 
-        let dw1: u32 = self.read(port, padbar + u32::from(pad) * 8 + 4);
-        let dw0: u32 = self.read(port, padbar + u32::from(pad) * 8);
+            let dw1: u32 = self.read(port, padbar + u32::from(pad) * 8 + 4);
+            let dw0: u32 = self.read(port, padbar + u32::from(pad) * 8);
 
-        u64::from(dw0) | u64::from(dw1) << 32
+            u64::from(dw0) | u64::from(dw1) << 32
+        }
     }
 }
