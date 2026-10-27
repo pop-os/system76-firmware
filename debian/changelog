@@ -1,3 +1,9 @@
+system76-firmware (1.0.79) noble; urgency=medium
+
+  * Add meer11-cu and meer11-c
+
+ -- Levi Portenier <levi@system76.com>  Tue, 27 Oct 2026 16:26:56 -0600
+
 system76-firmware (1.0.78) noble; urgency=medium
 
   * Add thelio-mira-r6
